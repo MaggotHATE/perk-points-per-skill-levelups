@@ -1,0 +1,26 @@
+scriptName PerkPointsPerSkillUps extends Quest
+
+;-- Properties --------------------------------------
+
+actor property PlayerRef auto
+globalvariable property SkillUps auto
+globalvariable property SkillUpsPerPerkPoint auto
+PerkPointsPerSkillUpsMCM Property PPPSU Auto
+quest property PerkPointsPerSkillUpsQ auto
+
+
+;-- Events ------------------------------------------
+
+Event OnStoryIncreaseSkill(string asSkill)
+	float PPPSUcalculated = StorageUtil.GetFloatValue(none, "PPPSUcalculated")
+	SkillUps.setvalue(SkillUps.getvalue() + PPPSUcalculated)
+	if SkillUps.getvalue() > 1
+		Game.AddPerkPoints(1)
+		SkillUps.setvalue(SkillUps.getvalue() - 1)
+	endif
+	Debug.Notification(asSkill+ " skill increased, "+SkillUps.getvalue() as float+" times total")
+	self.stop()
+endEvent
+
+;-- Functions ---------------------------------------
+

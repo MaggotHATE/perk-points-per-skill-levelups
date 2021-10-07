@@ -1,0 +1,6 @@
+{
+	"string" : 
+	{
+		"formula" : "-LEVEL_c0.001-SKILL_c0.003+MAGE_max0.001+SAME_max0.005"
+	}
+}
