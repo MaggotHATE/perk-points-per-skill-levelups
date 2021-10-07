@@ -422,7 +422,6 @@ state pppsuFormulasMenu
 		SetMenuOptionValueST(selectedFileName)
 		JsonUtil.Unload("../pppsu_presets/"+selectedFileName)
 		if JsonUtil.JsonExists("../pppsu_presets/"+selectedFileName)
-			;Debug.MessageBox(selectedFileName+" will be loaded.")
 			testfrml = JsonUtil.GetStringValue("../pppsu_presets/"+selectedFileName,"formula")
 			GetParsed(testfrml)
 			GetParsed(testfrml, "mage", false)
