@@ -1,0 +1,6 @@
+{
+	"string" : 
+	{
+		"formula" : "X0.1-LEVEL_c0.005+WARRIOR_sum0.0001+MAGE_sum0.0001+THIEF_sum0.0001+SAME_sum0.0001"
+	}
+}

@@ -1,0 +1,59 @@
+{
+	"stringList" : 
+	{
+		"tags" : 
+		[
+			"X",
+			"LEVEL_c",
+			"SKILL_c",
+			"MAGE_max",
+			"MAGE_min",
+			"MAGE_sum",
+			"MAGE_legend",
+			"WARRIOR_max",
+			"WARRIOR_min",
+			"WARRIOR_sum",
+			"WARRIOR_legend",
+			"THIEF_max",
+			"THIEF_min",
+			"THIEF_sum",
+			"THIEF_legend",
+			"SAME_max",
+			"SAME_min",
+			"SAME_sum",
+			"SAME_legend"
+		],
+		"operands" : 
+		[
+			"+",
+			"-"
+		],
+		"mage" : 
+		[
+			"Alteration",
+			"Conjuration",
+			"Destruction",
+			"Enchanting",
+			"Restoration",
+			"Illusion"
+		],
+		"warrior" : 
+		[
+			"Marksman",
+			"Block",
+			"HeavyArmor",
+			"Onehanded",
+			"Smithing",
+			"Twohanded"
+		],
+		"thief" : 
+		[
+			"Alchemy",
+			"LightArmor",
+			"Lockpicking",
+			"Pickpocket",
+			"Sneak",
+			"Speechcraft"
+		]
+	}
+}
