@@ -19,6 +19,7 @@ form property PPPSUMCM auto
 string testfrml = ""
 float PPPSUcalculated
 String[] formulasLoaded
+String[] tagsLoaded
 int selectedFileIndex = 0
 string selectedFileName = "default"
 bool skillLess = false
@@ -37,10 +38,14 @@ Event OnGameReload()
 	parent.OnGameReload() ;Important!
 	testfrml = JsonUtil.GetStringValue("../pppsu_presets/"+selectedFileName,"formula")
 	GetParsed(testfrml)
+	GetParsed1(testfrml, false)
 	GetParsed(testfrml, "mage", false)
 	GetParsed(testfrml, "warrior", false)
 	GetParsed(testfrml, "thief", false)
+	
 	StoreSkills(SkillUps)
+	tagsLoaded = getTagLists("../pppsu/system.json") 
+	Debug.Notification("sneak="+ProcessFormula1("sneak"))
 	; PageInit()
 endEvent
 
@@ -107,6 +112,57 @@ float function ProcessFormula(string CurrentSkill)
 			xx += GetSchool(bySkill,"legend")
 		elseif GetSchoolBySkill(FormulaTypes[x]) != "EXCEPTION_SCHOOL_NULLPOINTER"
 			xx += PlayerRef.getav(FormulaTypes[x])
+		endif
+		
+		tempPPoints += xx*FormulaVals[x]*FormulaOpers[x]
+		;Debug.Notification("#"+x+" "+FormulaTypes[x]+" ="+tempPPoints)
+		x -= 1
+	endwhile
+	if tempPPoints < 0.001
+		tempPPoints = 0.001
+	endif
+	return tempPPoints
+endFunction
+
+bool function HasMod(string cMod)
+	return JsonUtil.StringListHas("../pppsu/system.json", "mods", cMod)
+endFunction
+
+bool function HasTag(string cTag)
+	string[] tagList = getTagLists("../pppsu/system.json")
+	if tagList.Find(cTag) > -1
+		return true
+	endif
+	return false
+endFunction
+
+float function ProcessFormula1(string CurrentSkill)
+	int x = idx - 1
+	float tempPPoints = 0
+	;Debug.Notification("CurrentSkill="+CurrentSkill)
+	string bySkill = GetSchoolBySkill(CurrentSkill)
+	while x >= 0
+		float xx = 0
+		if FormulaTypes[x] == "X"
+			xx += 1
+		elseif FormulaTypes[x] == "LEVEL_c"
+			xx += PlayerRef.getlevel()
+		elseif FormulaTypes[x] == "SKILL_c" && PlayerRef.getav(CurrentSkill)
+			xx += PlayerRef.getav(CurrentSkill)	
+		elseif GetSchoolBySkill(FormulaTypes[x]) != "EXCEPTION_SCHOOL_NULLPOINTER"
+			xx += PlayerRef.getav(FormulaTypes[x])
+		else
+			int y = StringUtil.Find(FormulaTypes[x], "_")
+			string tempTag = StringUtil.Substring(FormulaTypes[x], 0, y)
+			string tempMod = StringUtil.Substring(FormulaTypes[x], y+1)
+			if HasMod(tempMod)
+				if HasTag(tempTag)
+					Debug.Notification("PF1: "+tempTag+tempMod)
+					xx += GetSchool(tempTag,tempMod)
+				elseif tempTag == "SAME"
+					xx += GetSchool(bySkill,tempMod)
+				endif
+			endif
 		endif
 		
 		tempPPoints += xx*FormulaVals[x]*FormulaOpers[x]
@@ -226,7 +282,74 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 		x += 1
 		xx = JsonUtil.StringListGet("../pppsu/system.json", tags,x)
 	endWhile
-	Debug.Notification("Finished "+tags)
+	;Debug.Notification("Finished "+tags)
+endFunction
+
+string[] function getTagLists(string path)
+	string[] tagList = JsonUtil.PathMembers(path, ".stringList")
+	
+	;Debug.Notification("tempTagList 0 = "+tagList[0])
+	return tagList
+endFunction
+
+float function getDigit(string formula, int undscrPos, string getMod)
+	int digPos = undscrPos+StringUtil.getLength(getMod)
+	string digSym = StringUtil.getNthChar(formula,digPos)
+	string digit = ""
+	;Debug.Notification("symbol " + yy)
+	while StringUtil.IsDigit(digSym) || (digSym == ".")
+		digit += digSym
+		digPos += 1
+		digSym = StringUtil.getNthChar(formula,digPos)
+	endwhile
+	return digit as float
+endFunction
+
+function GetParsed1(string formula, bool resetIDX = true)
+	if resetIDX == true
+		idx = 0
+		skillLess = true
+	endif
+
+	int x = 0
+	int y = 0
+	
+	string[] tagList = getTagLists("../pppsu/system.json")
+	while y < tagList.Length
+		int xxxx = StringUtil.Find(formula, tagList[y])
+		if xxxx != -1
+			int undscrPos = xxxx+StringUtil.getLength(tagList[y])
+			string undscr = StringUtil.getNthChar(formula, undscrPos)
+			if undscr == "_"
+				int yy = 0
+				string getMod = JsonUtil.StringListGet("../pppsu/system.json", "mods",yy)
+				while getMod
+					if getMod == StringUtil.Substring(formula, undscrPos, StringUtil.getLength(getMod))
+						float digit = getDigit(formula, undscrPos, getMod)
+						if xxxx > 0 && digit != 0
+							if StringUtil.getNthChar(formula,(xxxx - 1)) == "-"
+								FormulaOpers[idx] = -1
+							else 
+								FormulaOpers[idx] = 1
+							endif
+						else 
+							FormulaOpers[idx] = 1
+						endif
+						Debug.Notification("YES "+tagList[y]+getMod+" * "+digit+"*"+FormulaOpers[idx])
+						FormulaTypes[idx] = tagList[y]+getMod
+						FormulaVals[idx] = digit
+						idx += 1
+					endif
+					
+					yy += 1
+					getMod = JsonUtil.StringListGet("../pppsu/system.json", "mods",yy)
+				endWhile
+			endif
+		endif
+		y += 1
+	endWhile
+	
+	
 endFunction
 
 function StoreSkills(form storeForm)
@@ -424,6 +547,7 @@ state pppsuFormulasMenu
 		if JsonUtil.JsonExists("../pppsu_presets/"+selectedFileName)
 			testfrml = JsonUtil.GetStringValue("../pppsu_presets/"+selectedFileName,"formula")
 			GetParsed(testfrml)
+			GetParsed1(testfrml, false)
 			GetParsed(testfrml, "mage", false)
 			GetParsed(testfrml, "warrior", false)
 			GetParsed(testfrml, "thief", false)

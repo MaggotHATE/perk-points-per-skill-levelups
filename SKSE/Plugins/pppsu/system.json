@@ -6,22 +6,17 @@
 			"X",
 			"LEVEL_c",
 			"SKILL_c",
-			"MAGE_max",
-			"MAGE_min",
-			"MAGE_sum",
-			"MAGE_legend",
-			"WARRIOR_max",
-			"WARRIOR_min",
-			"WARRIOR_sum",
-			"WARRIOR_legend",
-			"THIEF_max",
-			"THIEF_min",
-			"THIEF_sum",
-			"THIEF_legend",
 			"SAME_max",
 			"SAME_min",
 			"SAME_sum",
 			"SAME_legend"
+		],
+		"mods" : 
+		[
+			"_max",
+			"_min",
+			"_sum",
+			"_legend"
 		],
 		"operands" : 
 		[
