@@ -34,7 +34,7 @@ Event OnStoryIncreaseSkill(string asSkill)
 		int x = SkillLvlDiff
 		bool isGivenPerkPint = false
 		while x > 0
-			PPPSUcalculated = PPPSU_1.ProcessFormula(asSkill)
+			PPPSUcalculated = PPPSU_1.ProcessFormula1(asSkill)
 			if PPPSUcalculated < 0.001
 				PPPSUcalculated = 0.001
 			endif
@@ -48,7 +48,7 @@ Event OnStoryIncreaseSkill(string asSkill)
 		;PlayerRef.placeAtMe(upgradeSND)	
 		Debug.Notification(asSkill+ " skill increased, "+SkillLvlDiff+" levels total, last is "+PPPSUcalculated)
 	else
-		PPPSUcalculated = PPPSU_1.ProcessFormula(asSkill)
+		PPPSUcalculated = PPPSU_1.ProcessFormula1(asSkill)
 		;StorageUtil.GetFloatValue(none, "PPPSUcalculated")
 		if ResolvePerkPoints(PPPSUcalculated) == true
 			playSFX(playerOR)

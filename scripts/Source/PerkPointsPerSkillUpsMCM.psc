@@ -38,14 +38,14 @@ Event OnGameReload()
 	parent.OnGameReload() ;Important!
 	testfrml = JsonUtil.GetStringValue("../pppsu_presets/"+selectedFileName,"formula")
 	GetParsed(testfrml)
-	GetParsed1(testfrml, false)
 	GetParsed(testfrml, "mage", false)
 	GetParsed(testfrml, "warrior", false)
 	GetParsed(testfrml, "thief", false)
+	GetParsed1(testfrml, false)
 	
 	StoreSkills(SkillUps)
 	tagsLoaded = getTagLists("../pppsu/system.json") 
-	Debug.Notification("sneak="+ProcessFormula1("sneak"))
+	;Debug.Notification("Alchemy="+ProcessFormula1("Alchemy"))
 	; PageInit()
 endEvent
 
@@ -155,9 +155,11 @@ float function ProcessFormula1(string CurrentSkill)
 			int y = StringUtil.Find(FormulaTypes[x], "_")
 			string tempTag = StringUtil.Substring(FormulaTypes[x], 0, y)
 			string tempMod = StringUtil.Substring(FormulaTypes[x], y+1)
-			if HasMod(tempMod)
+			string tempModU = "_"+tempMod
+			;Debug.Notification("PF1: "+tempTag+tempModU)
+			if HasMod(tempModU)
 				if HasTag(tempTag)
-					Debug.Notification("PF1: "+tempTag+tempMod)
+					
 					xx += GetSchool(tempTag,tempMod)
 				elseif tempTag == "SAME"
 					xx += GetSchool(bySkill,tempMod)
@@ -234,7 +236,7 @@ string function GetSchoolBySkill(string theSkill)
 	elseif JsonUtil.StringListHas("../pppsu/system.json", "thief",theSkill)
 		return "thief"
 	else
-		Debug.MessageBox("Wrong school setup or skill!")
+		;Debug.MessageBox("Wrong school setup or skill!")
 		return "EXCEPTION_SCHOOL_NULLPOINTER"
 	endif
 endFunction
@@ -335,7 +337,7 @@ function GetParsed1(string formula, bool resetIDX = true)
 						else 
 							FormulaOpers[idx] = 1
 						endif
-						Debug.Notification("YES "+tagList[y]+getMod+" * "+digit+"*"+FormulaOpers[idx])
+						;Debug.Notification("YES "+tagList[y]+getMod+" * "+digit+"*"+FormulaOpers[idx])
 						FormulaTypes[idx] = tagList[y]+getMod
 						FormulaVals[idx] = digit
 						idx += 1
@@ -458,7 +460,7 @@ function OnPageReset(String a_page)
 		self.SetCursorFillMode(self.LEFT_TO_RIGHT)
 		float calc_AVGcalc = 0.0
 		;if skillLess == false
-		calc_AVGcalc = ProcessFormula("alchemy")
+		calc_AVGcalc = ProcessFormula1("alchemy")
 		;else
 		;	calc_AVGcalc = ProcessFormula("")
 		;endif
@@ -476,9 +478,9 @@ function OnPageReset(String a_page)
 		else
 			self.AddTextOptionST("pppsu_AVGcalcT", "$pppsu_AVGcalcThiefT", calc_AVGcalc, OPTION_FLAG_NONE)
 			self.AddEmptyOption()
-			self.AddTextOptionST("pppsu_AVGcalcW", "$pppsu_AVGcalcWarT", ProcessFormula("onehanded"), OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_AVGcalcW", "$pppsu_AVGcalcWarT", ProcessFormula1("onehanded"), OPTION_FLAG_NONE)
 			self.AddEmptyOption()
-			self.AddTextOptionST("pppsu_AVGcalcM", "$pppsu_AVGcalcMageT", ProcessFormula("destruction"), OPTION_FLAG_NONE)			
+			self.AddTextOptionST("pppsu_AVGcalcM", "$pppsu_AVGcalcMageT", ProcessFormula1("destruction"), OPTION_FLAG_NONE)			
 		endif
 		int xx = 0
 		while FormulaTypes[xx]
@@ -547,10 +549,10 @@ state pppsuFormulasMenu
 		if JsonUtil.JsonExists("../pppsu_presets/"+selectedFileName)
 			testfrml = JsonUtil.GetStringValue("../pppsu_presets/"+selectedFileName,"formula")
 			GetParsed(testfrml)
-			GetParsed1(testfrml, false)
 			GetParsed(testfrml, "mage", false)
 			GetParsed(testfrml, "warrior", false)
 			GetParsed(testfrml, "thief", false)
+			GetParsed1(testfrml, false)
 			
 			ForcePageReset()
 		else
