@@ -69,9 +69,10 @@ bool function ResolvePerkPoints(float toPerkPointProgress)
 	float PerXperks = SkillUpsPerPerkPoint.GetValue() as float
 	SkillUps.setvalue(SkillUps.getvalue() + toPerkPointProgress)
 	if SkillUps.getvalue() >= PerXperks
-		Game.AddPerkPoints((PerXperks*PerkPointsPerDeposit.GetValue()) as int)
+		int perkPointsGivenActual = (PerXperks*PerkPointsPerDeposit.GetValue()) as int
+		Game.AddPerkPoints(perkPointsGivenActual)
 		
-		SkillUps.setvalue(SkillUps.getvalue() - PerXperks)
+		SkillUps.setvalue(SkillUps.getvalue() - perkPointsGivenActual)
 		wasPerkGiven = true
 		
 		;upgradeSND.play(PlayerRef)
