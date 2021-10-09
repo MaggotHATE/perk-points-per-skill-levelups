@@ -1,6 +1,6 @@
 {
 	"string" : 
 	{
-		"formula" : "X0.5+SAME_sum0.005-SKILL_c0.001-WARRIOR_sum0.003-MAGE_sum0.003-THIEF_sum0.003"
+		"formula" : "X0.5+SAME_sum0.005-SKILL_c0.003-WARRIOR_sum0.003-MAGE_sum0.003-THIEF_sum0.003"
 	}
 }

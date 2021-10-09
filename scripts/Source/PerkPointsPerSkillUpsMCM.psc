@@ -38,13 +38,13 @@ Event OnGameReload()
 	Debug.MessageBox("OnGameReload1")
 	parent.OnGameReload() ;Important!
 	testfrml = JsonUtil.GetStringValue("../pppsu_presets/"+selectedFileName,"formula")
-	GetParsed(testfrml)
-	GetParsed(testfrml, "mage", false)
-	GetParsed(testfrml, "warrior", false)
-	GetParsed(testfrml, "thief", false)
+	;GetParsed(testfrml)
+	;GetParsed(testfrml, "mage", false)
+	;GetParsed(testfrml, "warrior", false)
+	;GetParsed(testfrml, "thief", false)
 	
 	StoreSkills(SkillUps)
-	tagsLoaded = getTagLists("../pppsu/system.json") 
+	;tagsLoaded = getTagLists("../pppsu/system.json") 
 	;Debug.Notification("Alchemy="+ProcessFormula2("Alchemy"))
 	; PageInit()
 endEvent
@@ -234,13 +234,18 @@ endFunction
 float function getDigit(string formula, int digPos)
 	string digSym = StringUtil.getNthChar(formula,digPos)
 	string digit = ""
-	;Debug.Notification("symbol " + yy)
+	
 	while StringUtil.IsDigit(digSym) || (digSym == ".")
 		digit += digSym
 		digPos += 1
 		digSym = StringUtil.getNthChar(formula,digPos)
 	endwhile
-	return digit as float
+	;Debug.MessageBox("digit " + digit)
+	if digit == ""
+		return -1
+	else
+		return digit as float
+	endif
 endFunction
 
 int function getSign(string formula, int tagPos)
@@ -266,33 +271,45 @@ function GetParsed2(string formula)
 	int y = 0
 	
 	string[] tagList = getTagLists("../pppsu/system.json")
+	;Debug.MessageBox("tagList loaded")
 	;int numTags = tagList.Length
 	;tagList[numTags] = "SAME"
+	
 	while y < tagList.Length
-		int xxxx = StringUtil.Find(formula, tagList[y])
-		if xxxx != -1
-			int undscrPos = xxxx+StringUtil.getLength(tagList[y])
-			string undscr = StringUtil.getNthChar(formula, undscrPos)
-			if undscr == "_"
-				int yy = 0
-				string getMod = JsonUtil.StringListGet("../pppsu/system.json", "mods",yy)
-				while getMod
-					if getMod == StringUtil.Substring(formula, undscrPos, StringUtil.getLength(getMod))
-						int digPos = undscrPos+StringUtil.getLength(getMod)
-						float digit = getDigit(formula, digPos)
-						if digit != 0
-							FormulaOpers[idx] = getSign(formula, xxxx)
-							FormulaTypes[idx] = tagList[y]
-							FormulaMods[idx] = getMod
-							FormulaVals[idx] = digit
-							idx += 1
-							;Debug.Notification("GP2 "+FormulaTypes[idx]+FormulaMods[idx]+" * "+FormulaVals[idx]+"*"+FormulaOpers[idx])
+		if  tagList[y] != "mods" && tagList[y] != "tags"
+			int xxxx = StringUtil.Find(formula, tagList[y])
+			;Debug.MessageBox("Finding "+tagList[y]+" at "+xxxx)
+			if xxxx != -1
+				int undscrPos = xxxx+StringUtil.getLength(tagList[y])
+				string undscr = StringUtil.getNthChar(formula, undscrPos)
+				if undscr == "_"
+					int yy = 0
+					string getMod = JsonUtil.StringListGet("../pppsu/system.json", "mods",yy)
+					while getMod
+						if getMod == StringUtil.Substring(formula, undscrPos, StringUtil.getLength(getMod))
+							int digPos = undscrPos+StringUtil.getLength(getMod)
+							;Debug.MessageBox("mod? "+getMod+" at "+digPos)
+							float digit = getDigit(formula, digPos)
+							if digit != -1
+								FormulaOpers[idx] = getSign(formula, xxxx)
+								FormulaTypes[idx] = tagList[y]
+								FormulaMods[idx] = getMod
+								FormulaVals[idx] = digit
+								
+								;Debug.MessageBox("GP2 "+FormulaTypes[idx]+FormulaMods[idx]+" * "+FormulaVals[idx]+"*"+FormulaOpers[idx])
+								
+								idx += 1
+								if tagList[y] == "SAME"
+									skillLess = false
+								endif
+								
+							endif
 						endif
-					endif
-					
-					yy += 1
-					getMod = JsonUtil.StringListGet("../pppsu/system.json", "mods",yy)
-				endWhile
+						
+						yy += 1
+						getMod = JsonUtil.StringListGet("../pppsu/system.json", "mods",yy)
+					endWhile
+				endif
 			endif
 		endif
 		y += 1
@@ -431,7 +448,7 @@ function OnPageReset(String a_page)
 		endif
 		int xx = 0
 		while FormulaTypes[xx]
-			self.AddTextOptionST("pppsu_AVGcalcT"+xx, FormulaTypes[xx]+FormulaMods[xx]+" #"+xx, FormulaVals[xx]*FormulaOpers[xx], OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_AVGcalcT"+xx, FormulaTypes[xx]+FormulaMods[xx], FormulaVals[xx]*FormulaOpers[xx], OPTION_FLAG_NONE)
 			self.AddEmptyOption()
 			xx += 1
 		endWhile
