@@ -44,7 +44,7 @@ Event OnGameReload()
 	
 	StoreSkills(SkillUps)
 	tagsLoaded = getTagLists("../pppsu/system.json") 
-	Debug.Notification("Alchemy="+ProcessFormula1("Alchemy"))
+	;Debug.Notification("Alchemy="+ProcessFormula1("Alchemy"))
 	; PageInit()
 endEvent
 
@@ -147,7 +147,7 @@ endFunction
 
 float function ProcessFormula1(string CurrentSkill)
 	int x = idx - 1
-	Debug.Notification("Starting from "+x)
+	;Debug.Notification("Starting from "+x)
 	float tempPPoints = 0
 	;Debug.Notification("CurrentSkill="+CurrentSkill)
 	while x >= 0
@@ -171,7 +171,7 @@ float function ProcessFormula1(string CurrentSkill)
 				if HasTag(tempTag)
 					if tempTag == "SAME"
 						string bySkill = GetSchoolBySkill(CurrentSkill)
-						Debug.Notification(FormulaTypes[x]+" into "+bySkill)
+						;Debug.Notification(FormulaTypes[x]+" into "+bySkill)
 						xx += GetBySchool(bySkill,tempMod)
 					else
 						xx += GetBySchool(tempTag,tempMod)
@@ -237,7 +237,7 @@ int function GetBySchool (string school, string method)
 		endWhile
 		;Debug.Notification("legend "+school+" "+result)
 	endif
-	Debug.Notification("#"+idx + " " + school+" "+method+" "+result)
+	;Debug.Notification("#"+idx + " " + school+" "+method+" "+result)
 	return result
 endFunction
 
