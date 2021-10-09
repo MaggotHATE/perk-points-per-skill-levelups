@@ -8,6 +8,7 @@ globalvariable property SkillUpsPerPerkPoint auto
 globalvariable property PerkPointsPerDeposit auto
 quest property PerkPointsPerSkillUpsQ auto
 string[] property FormulaTypes auto
+string[] property FormulaMods auto
 float[] property FormulaVals auto
 int[] property FormulaOpers auto
 int idx
@@ -44,7 +45,7 @@ Event OnGameReload()
 	
 	StoreSkills(SkillUps)
 	tagsLoaded = getTagLists("../pppsu/system.json") 
-	;Debug.Notification("Alchemy="+ProcessFormula1("Alchemy"))
+	;Debug.Notification("Alchemy="+ProcessFormula2("Alchemy"))
 	; PageInit()
 endEvent
 
@@ -66,71 +67,10 @@ function ResetFormula()
 endFunction
 
 function resetArrays()
-	string[] rStr = new string[128]
-	FormulaTypes = rStr
-	int[] rInt = new int[128]
-	FormulaOpers = rInt
-	float[] rFlt = new float[128]
-	FormulaVals = rFlt
-endFunction
-
-float function ProcessFormula(string CurrentSkill)
-	int x = idx - 1
-	float tempPPoints = 0
-	;Debug.Notification("CurrentSkill="+CurrentSkill)
-	string bySkill = GetSchoolBySkill(CurrentSkill)
-	while x >= 0
-		float xx = 0
-		if FormulaTypes[x] == "X"
-			xx += 1
-		elseif FormulaTypes[x] == "LEVEL_c"
-			xx += PlayerRef.getlevel()
-		elseif FormulaTypes[x] == "SKILL_c" && PlayerRef.getav(CurrentSkill)
-			xx += PlayerRef.getav(CurrentSkill)
-		elseif FormulaTypes[x] == "MAGE_max"
-			xx += GetBySchool("mage","max")
-		elseif FormulaTypes[x] == "MAGE_min"
-			xx += GetBySchool("mage","min")
-		elseif FormulaTypes[x] == "MAGE_sum"
-			xx += GetBySchool("mage","sum")
-		elseif FormulaTypes[x] == "MAGE_legend"
-			xx += GetBySchool("mage","legend")
-		elseif FormulaTypes[x] == "WARRIOR_max"
-			xx += GetBySchool("warrior","max")
-		elseif FormulaTypes[x] == "WARRIOR_min"
-			xx += GetBySchool("warrior","min")
-		elseif FormulaTypes[x] == "WARRIOR_sum"
-			xx += GetBySchool("warrior","sum")
-		elseif FormulaTypes[x] == "WARRIOR_legend"
-			xx += GetBySchool("warrior","legend")
-		elseif FormulaTypes[x] == "THIEF_max"
-			xx += GetBySchool("thief","max")
-		elseif FormulaTypes[x] == "THIEF_min"
-			xx += GetBySchool("thief","min")
-		elseif FormulaTypes[x] == "THIEF_sum"
-			xx += GetBySchool("thief","sum")
-		elseif FormulaTypes[x] == "THIEF_legend"
-			xx += GetBySchool("thief","legend")
-		elseif FormulaTypes[x] == "SAME_max"
-			xx += GetBySchool(bySkill,"max")
-		elseif FormulaTypes[x] == "SAME_min"
-			xx += GetBySchool(bySkill,"min")
-		elseif FormulaTypes[x] == "SAME_sum"
-			xx += GetBySchool(bySkill,"sum")
-		elseif FormulaTypes[x] == "SAME_legend"
-			xx += GetBySchool(bySkill,"legend")
-		elseif GetSchoolBySkill(FormulaTypes[x]) != "EXCEPTION_SCHOOL_NULLPOINTER"
-			xx += PlayerRef.getav(FormulaTypes[x])
-		endif
-		
-		tempPPoints += xx*FormulaVals[x]*FormulaOpers[x]
-		;Debug.Notification("#"+x+" "+FormulaTypes[x]+" ="+tempPPoints)
-		x -= 1
-	endwhile
-	if tempPPoints < 0.001
-		tempPPoints = 0.001
-	endif
-	return tempPPoints
+	FormulaTypes = new string[128]
+	FormulaMods = new string[128]	
+	FormulaOpers = new int[128]
+	FormulaVals = new float[128]
 endFunction
 
 bool function HasMod(string cMod)
@@ -145,7 +85,7 @@ bool function HasTag(string cTag)
 	return false
 endFunction
 
-float function ProcessFormula1(string CurrentSkill)
+float function ProcessFormula2(string CurrentSkill)
 	int x = idx - 1
 	;Debug.Notification("Starting from "+x)
 	float tempPPoints = 0
@@ -160,24 +100,16 @@ float function ProcessFormula1(string CurrentSkill)
 			xx += PlayerRef.getav(CurrentSkill)	
 		elseif GetSchoolBySkill(FormulaTypes[x]) != "EXCEPTION_SCHOOL_NULLPOINTER"
 			xx += PlayerRef.getav(FormulaTypes[x])
-		else
-			;Debug.Notification("Type: "+FormulaTypes[x])
-			int y = StringUtil.Find(FormulaTypes[x], "_")
-			string tempTag = StringUtil.Substring(FormulaTypes[x], 0, y)
-			string tempMod = StringUtil.Substring(FormulaTypes[x], y+1)
-			string tempModU = "_"+tempMod
-			;Debug.Notification("PF1: "+tempTag+tempModU)
-			if HasMod(tempModU)
-				if HasTag(tempTag)
-					if tempTag == "SAME"
+		elseif HasMod(FormulaMods[x])
+				if HasTag(FormulaTypes[x])
+					if FormulaTypes[x] == "SAME"
 						string bySkill = GetSchoolBySkill(CurrentSkill)
 						;Debug.Notification(FormulaTypes[x]+" into "+bySkill)
-						xx += GetBySchool(bySkill,tempMod)
+						xx += GetBySchool1(bySkill,FormulaMods[x])
 					else
-						xx += GetBySchool(tempTag,tempMod)
+						xx += GetBySchool1(FormulaTypes[x],FormulaMods[x])
 					endif					
 				endif
-			endif
 		endif
 		
 		tempPPoints += xx*FormulaVals[x]*FormulaOpers[x]
@@ -190,9 +122,9 @@ float function ProcessFormula1(string CurrentSkill)
 	return tempPPoints
 endFunction
 
-int function GetBySchool (string school, string method)
+int function GetBySchool1(string school, string method)
 	int result = 0
-	if method == "max"
+	if method == "_max"
 		int x = 0
 		string xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
 		while xx
@@ -205,7 +137,7 @@ int function GetBySchool (string school, string method)
 			
 		endWhile
 		;Debug.Notification("max "+school+" "+result)
-	elseif method == "min"
+	elseif method == "_min"
 		int x = 0
 		string xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
 		result = PlayerRef.getav(xx) as int
@@ -218,7 +150,7 @@ int function GetBySchool (string school, string method)
 			xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
 		endWhile
 		;Debug.Notification("min "+school+" "+result)
-	elseif method == "sum"
+	elseif method == "_sum"
 		int x = 0
 		string xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
 		while xx
@@ -227,7 +159,7 @@ int function GetBySchool (string school, string method)
 			xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
 		endWhile
 		;Debug.Notification("sum "+school+" "+result)
-	elseif method == "legend"
+	elseif method == "_legend"
 		int x = 0
 		string xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
 		while xx
@@ -272,6 +204,7 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 			string yy = StringUtil.getNthChar(formula,y)
 			float digit = getDigit(formula, y)
 			FormulaTypes[idx] = xx
+			FormulaMods[idx] = "_"
 			FormulaVals[idx] = digit
 			FormulaOpers[idx] = getSign(formula, xxx)
 			idx += 1
@@ -286,7 +219,7 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 		xx = JsonUtil.StringListGet("../pppsu/system.json", tags,x)
 	endWhile
 	if tags == "TAGS"
-		GetParsed1(testfrml)
+		GetParsed2(testfrml)
 	endif
 	;Debug.Notification("Finished "+tags)
 endFunction
@@ -323,7 +256,7 @@ int function getSign(string formula, int tagPos)
 	endif
 endFunction
 
-function GetParsed1(string formula)
+function GetParsed2(string formula)
 	; if resetIDX == true
 		; idx = 0
 		; skillLess = true
@@ -349,10 +282,11 @@ function GetParsed1(string formula)
 						float digit = getDigit(formula, digPos)
 						if digit != 0
 							FormulaOpers[idx] = getSign(formula, xxxx)
-							FormulaTypes[idx] = tagList[y]+getMod
+							FormulaTypes[idx] = tagList[y]
+							FormulaMods[idx] = getMod
 							FormulaVals[idx] = digit
 							idx += 1
-							;Debug.Notification("YES "+FormulaTypes[idx]+" * "+FormulaVals[idx]+"*"+FormulaOpers[idx])
+							;Debug.Notification("GP2 "+FormulaTypes[idx]+FormulaMods[idx]+" * "+FormulaVals[idx]+"*"+FormulaOpers[idx])
 						endif
 					endif
 					
@@ -473,16 +407,16 @@ function OnPageReset(String a_page)
 		self.SetCursorFillMode(self.LEFT_TO_RIGHT)
 		float calc_AVGcalc = 0.0
 		;if skillLess == false
-		calc_AVGcalc = ProcessFormula1("alchemy")
+		calc_AVGcalc = ProcessFormula2("alchemy")
 		;else
 		;	calc_AVGcalc = ProcessFormula("")
 		;endif
 		self.AddTextOptionST("pppsu_Current", "$pppsu_CurrentT", SkillUps.GetValue() as float, OPTION_FLAG_NONE)
-		self.AddTextOptionST("pppsu_MSUM", "$pppsu_MSUMT", GetBySchool("mage","sum") as int, OPTION_FLAG_NONE)
+		self.AddTextOptionST("pppsu_MSUM", "$pppsu_MSUMT", GetBySchool1("mage","_sum") as int, OPTION_FLAG_NONE)
 		self.AddEmptyOption()
-		self.AddTextOptionST("pppsu_WSUM", "$pppsu_WSUMT", GetBySchool("warrior","sum") as int, OPTION_FLAG_NONE)
+		self.AddTextOptionST("pppsu_WSUM", "$pppsu_WSUMT", GetBySchool1("warrior","_sum") as int, OPTION_FLAG_NONE)
 		self.AddEmptyOption()
-		self.AddTextOptionST("pppsu_TSUM", "$pppsu_TSUMT", GetBySchool("thief","sum") as int, OPTION_FLAG_NONE)
+		self.AddTextOptionST("pppsu_TSUM", "$pppsu_TSUMT", GetBySchool1("thief","_sum") as int, OPTION_FLAG_NONE)
 		self.AddEmptyOption()
 		self.AddTextOptionST("pppsu_SKILLESS", "$pppsu_SKILLESS", skillLess, OPTION_FLAG_NONE)
 		self.AddEmptyOption()
@@ -491,13 +425,13 @@ function OnPageReset(String a_page)
 		else
 			self.AddTextOptionST("pppsu_AVGcalcT", "$pppsu_AVGcalcThiefT", calc_AVGcalc, OPTION_FLAG_NONE)
 			self.AddEmptyOption()
-			self.AddTextOptionST("pppsu_AVGcalcW", "$pppsu_AVGcalcWarT", ProcessFormula1("onehanded"), OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_AVGcalcW", "$pppsu_AVGcalcWarT", ProcessFormula2("onehanded"), OPTION_FLAG_NONE)
 			self.AddEmptyOption()
-			self.AddTextOptionST("pppsu_AVGcalcM", "$pppsu_AVGcalcMageT", ProcessFormula1("destruction"), OPTION_FLAG_NONE)			
+			self.AddTextOptionST("pppsu_AVGcalcM", "$pppsu_AVGcalcMageT", ProcessFormula2("destruction"), OPTION_FLAG_NONE)			
 		endif
 		int xx = 0
 		while FormulaTypes[xx]
-			self.AddTextOptionST("pppsu_AVGcalcT"+xx, FormulaTypes[xx]+" #"+xx, FormulaVals[xx]*FormulaOpers[xx], OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_AVGcalcT"+xx, FormulaTypes[xx]+FormulaMods[xx]+" #"+xx, FormulaVals[xx]*FormulaOpers[xx], OPTION_FLAG_NONE)
 			self.AddEmptyOption()
 			xx += 1
 		endWhile
