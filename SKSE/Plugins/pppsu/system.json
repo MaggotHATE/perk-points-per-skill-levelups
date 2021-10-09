@@ -14,10 +14,8 @@
 			"_sum",
 			"_legend"
 		],
-		"operands" : 
+		"same" : 
 		[
-			"+",
-			"-"
 		],
 		"mage" : 
 		[
