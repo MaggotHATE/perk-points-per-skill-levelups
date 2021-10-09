@@ -63,6 +63,13 @@ function ResetFormula()
 	GetParsed(testfrml, "mage", false)
 	GetParsed(testfrml, "warrior", false)
 	GetParsed(testfrml, "thief", false)
+	GetParsed1(testfrml, false)
+endFunction
+
+function resetArrays()
+	FormulaTypes = new string[128]
+	FormulaOpers = new int[128]
+	FormulaVals = new float[128]
 endFunction
 
 float function ProcessFormula(string CurrentSkill)
@@ -243,6 +250,7 @@ endFunction
 
 function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 	if resetIDX == true
+		resetArrays()
 		idx = 0
 		skillLess = true
 	endif
@@ -256,30 +264,17 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 			;Debug.Notification("Found " + xx+ " tag #"+x+" at "+xxx)
 			int y = xxx + StringUtil.GetLength(xx) 
 			string yy = StringUtil.getNthChar(formula,y)
-			string yyy = ""
-			;Debug.Notification("symbol " + yy)
-			while StringUtil.IsDigit(yy) || (yy == ".")
-				yyy += yy
-				y += 1
-				yy = StringUtil.getNthChar(formula,y)
-			endwhile
-			;Debug.Notification("Result: "+ xx + "*" + yyy as float)
+			float digit = getDigit(formula, y)
 			FormulaTypes[idx] = xx
-			if xx == "SKILL_c" || StringUtil.Find(xx, "SAME")
-				skillLess = false
-			endif
-			FormulaVals[idx] = yyy as float
-			if xxx > 0
-				if StringUtil.getNthChar(formula,(xxx - 1)) == "-"
-					FormulaOpers[idx] = -1
-				else 
-					FormulaOpers[idx] = 1
-				endif
-			else 
-				FormulaOpers[idx] = 1
-			endif
-			;Debug.Notification(idx+": " + FormulaOpers[idx] + " " + FormulaTypes[idx] + " * " + FormulaVals[idx])
+			FormulaVals[idx] = digit
+			FormulaOpers[idx] = getSign(digit, xxx)
 			idx += 1
+			
+			if xx == "SKILL_c"
+				skillLess = false
+			endif			
+			;Debug.Notification(idx+": " + FormulaOpers[idx] + " " + FormulaTypes[idx] + " * " + FormulaVals[idx])
+			
 		endif
 		x += 1
 		xx = JsonUtil.StringListGet("../pppsu/system.json", tags,x)
@@ -294,8 +289,7 @@ string[] function getTagLists(string path)
 	return tagList
 endFunction
 
-float function getDigit(string formula, int undscrPos, string getMod)
-	int digPos = undscrPos+StringUtil.getLength(getMod)
+float function getDigit(string formula, int digPos)
 	string digSym = StringUtil.getNthChar(formula,digPos)
 	string digit = ""
 	;Debug.Notification("symbol " + yy)
@@ -307,16 +301,30 @@ float function getDigit(string formula, int undscrPos, string getMod)
 	return digit as float
 endFunction
 
-function GetParsed1(string formula, bool resetIDX = true)
-	if resetIDX == true
-		idx = 0
-		skillLess = true
+int function getSign(string formula, int tagPos)
+	if tagPos > 0
+		if StringUtil.getNthChar(formula,(tagPos - 1)) == "-"
+			return -1
+		else 
+			return 1
+		endif
+	else 
+		return 1
 	endif
+endFunction
+
+function GetParsed1(string formula, bool resetIDX = true)
+	; if resetIDX == true
+		; idx = 0
+		; skillLess = true
+	; endif
 
 	int x = 0
 	int y = 0
 	
 	string[] tagList = getTagLists("../pppsu/system.json")
+	int numTags = tagList.Length
+	tagList[numTags] = "same"
 	while y < tagList.Length
 		int xxxx = StringUtil.Find(formula, tagList[y])
 		if xxxx != -1
@@ -327,20 +335,15 @@ function GetParsed1(string formula, bool resetIDX = true)
 				string getMod = JsonUtil.StringListGet("../pppsu/system.json", "mods",yy)
 				while getMod
 					if getMod == StringUtil.Substring(formula, undscrPos, StringUtil.getLength(getMod))
-						float digit = getDigit(formula, undscrPos, getMod)
-						if xxxx > 0 && digit != 0
-							if StringUtil.getNthChar(formula,(xxxx - 1)) == "-"
-								FormulaOpers[idx] = -1
-							else 
-								FormulaOpers[idx] = 1
-							endif
-						else 
-							FormulaOpers[idx] = 1
+						int digPos = undscrPos+StringUtil.getLength(getMod)
+						float digit = getDigit(formula, digPos)
+						if digit != 0
+							FormulaOpers[idx] = getSign(digit, xxxx)
+							FormulaTypes[idx] = tagList[y]+getMod
+							FormulaVals[idx] = digit
+							idx += 1
+							Debug.Notification("YES "+FormulaTypes[idx]+" * "+FormulaVals[idx]+"*"+FormulaOpers[idx])
 						endif
-						;Debug.Notification("YES "+tagList[y]+getMod+" * "+digit+"*"+FormulaOpers[idx])
-						FormulaTypes[idx] = tagList[y]+getMod
-						FormulaVals[idx] = digit
-						idx += 1
 					endif
 					
 					yy += 1
