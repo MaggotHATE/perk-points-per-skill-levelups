@@ -60,9 +60,9 @@ function ResetFormula()
 	selectedFileName = "default"
 	testfrml = JsonUtil.GetStringValue("../pppsu_presets/"+selectedFileName,"formula")
 	GetParsed(testfrml)
-	GetParsed(testfrml, "mage", false)
-	GetParsed(testfrml, "warrior", false)
-	GetParsed(testfrml, "thief", false)
+	;GetParsed(testfrml, "mage", false)
+	;GetParsed(testfrml, "warrior", false)
+	;GetParsed(testfrml, "thief", false)
 	;GetParsed1(testfrml, false)
 endFunction
 
@@ -220,6 +220,15 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 	endWhile
 	if tags == "TAGS"
 		GetParsed2(testfrml)
+		string[] tagList = getTagLists("../pppsu/system.json")
+		int y = 0
+		while y < tagList.Length
+			if tagList[y] != "mods" && tagList[y] != "tags" && tagList[y] != "same"
+				Debug.Notification("Parsing "+tagList[y])
+				GetParsed(testfrml, tagList[y], false)
+			endif
+			y += 1
+		endwhile
 	endif
 	;Debug.Notification("Finished "+tags)
 endFunction
@@ -513,9 +522,9 @@ state pppsuFormulasMenu
 		if JsonUtil.JsonExists("../pppsu_presets/"+selectedFileName)
 			testfrml = JsonUtil.GetStringValue("../pppsu_presets/"+selectedFileName,"formula")
 			GetParsed(testfrml)
-			GetParsed(testfrml, "mage", false)
-			GetParsed(testfrml, "warrior", false)
-			GetParsed(testfrml, "thief", false)
+			;GetParsed(testfrml, "mage", false)
+			;GetParsed(testfrml, "warrior", false)
+			;GetParsed(testfrml, "thief", false)
 			;GetParsed1(testfrml, false)
 			
 			ForcePageReset()
