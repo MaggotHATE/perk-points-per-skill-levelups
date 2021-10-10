@@ -82,7 +82,7 @@ endFunction
 
 function playSFX(objectReference target)
 		int instanceID = UISkillsBackward.play((PlayerRef as objectReference))
-		Debug.Notification("instanceID = "+instanceID)
+		;Debug.Notification("instanceID = "+instanceID)
 		sound.SetInstanceVolume(instanceID, 40.9)
 endFunction
 

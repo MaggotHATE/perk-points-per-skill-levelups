@@ -1,0 +1,51 @@
+{
+	"stringList" : 
+	{
+		"tags" : 
+		[
+			"X",
+			"LEVEL_c",
+			"SKILL_c"
+		],
+		"mods" : 
+		[
+			"_max",
+			"_min",
+			"_sum",
+			"_legend"
+		],
+		"same" : 
+		[
+		],
+		"mage" : 
+		[
+			"Alteration",
+			"Conjuration",
+			"Destruction",
+			"Restoration",
+			"Illusion"
+		],
+		"warrior" : 
+		[
+			"Marksman",
+			"Block",
+			"HeavyArmor",
+			"Onehanded",
+			"Twohanded"
+		],
+		"thief" : 
+		[
+			"LightArmor",
+			"Lockpicking",
+			"Pickpocket",
+			"Sneak"
+		],
+		"craft" : 
+		[
+			"Alchemy",
+			"Smithing",
+			"Enchanting",
+			"Speechcraft"
+		]
+	}
+}

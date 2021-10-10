@@ -14,6 +14,8 @@ int[] property FormulaOpers auto
 int idx
 int[] property PlayerSkillsStored auto
 form property PPPSUMCM auto
+string property formulaPresetsPath = "../pppsu_formulas/" auto
+string property rulePresetsPath = "../pppsu/" auto
 ;string CurrentSkill
 
 ;-- Variables ---------------------------------------
@@ -24,6 +26,8 @@ String[] tagsLoaded
 int selectedFileIndex = 0
 string selectedFileName = "default"
 bool skillLess = false
+string systemPreset = "system.json"
+
 ;"LEVEL_c0.3-SKILL_c0.1+MAGE_max0.1+SAME_max0.2"
 ;string[] pppsu/system = ["LEVEL","SKILL","MAGE_max","MAGE_min","MAGE_sum","MAGE_legend","WARRIOR_max","WARRIOR_min","WARRIOR_sum","WARRIOR_legend","THIEF_max","THIEF_min","THIEF_sum","THIEF_legend","SAME_max","SAME_min","SAME_sum","SAME_legend"]
 ; PLANS
@@ -36,15 +40,17 @@ bool skillLess = false
 
 Event OnGameReload()
 	Debug.MessageBox("OnGameReload1")
+	;formulaPresetsPath = "../pppsu_formulas/"
+	;rulePresetsPath = "../pppsu/"
 	parent.OnGameReload() ;Important!
-	testfrml = JsonUtil.GetStringValue("../pppsu_presets/"+selectedFileName,"formula")
+	testfrml = JsonUtil.GetStringValue(formulaPresetsPath+selectedFileName,"formula")
 	;GetParsed(testfrml)
 	;GetParsed(testfrml, "mage", false)
 	;GetParsed(testfrml, "warrior", false)
 	;GetParsed(testfrml, "thief", false)
 	
 	StoreSkills(SkillUps)
-	;tagsLoaded = getTagLists("../pppsu/system.json") 
+	;tagsLoaded = getTagLists(rulePresetsPath+systemPreset) 
 	;Debug.Notification("Alchemy="+ProcessFormula2("Alchemy"))
 	; PageInit()
 endEvent
@@ -58,7 +64,7 @@ endFunction
 function ResetFormula()
 	Debug.Notification("Resetting formula...")
 	selectedFileName = "default"
-	testfrml = JsonUtil.GetStringValue("../pppsu_presets/"+selectedFileName,"formula")
+	testfrml = JsonUtil.GetStringValue(formulaPresetsPath+selectedFileName,"formula")
 	GetParsed(testfrml)
 	;GetParsed(testfrml, "mage", false)
 	;GetParsed(testfrml, "warrior", false)
@@ -74,11 +80,11 @@ function resetArrays()
 endFunction
 
 bool function HasMod(string cMod)
-	return JsonUtil.StringListHas("../pppsu/system.json", "mods", cMod)
+	return JsonUtil.StringListHas(rulePresetsPath+systemPreset, "mods", cMod)
 endFunction
 
 bool function HasTag(string cTag)
-	string[] tagList = getTagLists("../pppsu/system.json")
+	string[] tagList = getTagLists(rulePresetsPath+systemPreset)
 	if tagList.Find(cTag) > -1
 		return true
 	endif
@@ -126,20 +132,20 @@ int function GetBySchool1(string school, string method)
 	int result = 0
 	if method == "_max"
 		int x = 0
-		string xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
+		string xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
 		while xx
 			int tempAV = PlayerRef.getav(xx) as int
 			if result < tempAV
 				result = tempAV
 			endif
 			x += 1
-			xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
+			xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
 			
 		endWhile
 		;Debug.Notification("max "+school+" "+result)
 	elseif method == "_min"
 		int x = 0
-		string xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
+		string xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
 		result = PlayerRef.getav(xx) as int
 		while xx
 			int tempAV = PlayerRef.getav(xx) as int
@@ -147,25 +153,25 @@ int function GetBySchool1(string school, string method)
 				result = tempAV
 			endif
 			x += 1
-			xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
+			xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
 		endWhile
 		;Debug.Notification("min "+school+" "+result)
 	elseif method == "_sum"
 		int x = 0
-		string xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
+		string xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
 		while xx
 			result += PlayerRef.getav(xx) as int
 			x += 1
-			xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
+			xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
 		endWhile
 		;Debug.Notification("sum "+school+" "+result)
 	elseif method == "_legend"
 		int x = 0
-		string xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
+		string xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
 		while xx
 			result += ActorValueInfo.GetAVIByName(xx).GetSkillLegendaryLevel()
 			x += 1
-			xx = JsonUtil.StringListGet("../pppsu/system.json", school,x)
+			xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
 		endWhile
 		;Debug.Notification("legend "+school+" "+result)
 	endif
@@ -174,11 +180,11 @@ int function GetBySchool1(string school, string method)
 endFunction
 
 string function GetSchoolBySkill(string theSkill)	
-	if JsonUtil.StringListHas("../pppsu/system.json", "mage",theSkill)
+	if JsonUtil.StringListHas(rulePresetsPath+systemPreset, "mage",theSkill)
 		return "mage"
-	elseif JsonUtil.StringListHas("../pppsu/system.json", "warrior",theSkill)
+	elseif JsonUtil.StringListHas(rulePresetsPath+systemPreset, "warrior",theSkill)
 		return "warrior"
-	elseif JsonUtil.StringListHas("../pppsu/system.json", "thief",theSkill)
+	elseif JsonUtil.StringListHas(rulePresetsPath+systemPreset, "thief",theSkill)
 		return "thief"
 	else
 		;Debug.MessageBox("Wrong school setup or skill!")
@@ -195,7 +201,7 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 
 	int x = 0
 	
-	string xx = JsonUtil.StringListGet("../pppsu/system.json", tags,x)
+	string xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, tags,x)
 	while xx
 		int xxx = StringUtil.Find(formula, xx)
 		if xxx != -1
@@ -216,11 +222,11 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 			
 		endif
 		x += 1
-		xx = JsonUtil.StringListGet("../pppsu/system.json", tags,x)
+		xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, tags,x)
 	endWhile
 	if tags == "TAGS"
 		GetParsed2(testfrml)
-		string[] tagList = getTagLists("../pppsu/system.json")
+		string[] tagList = getTagLists(rulePresetsPath+systemPreset)
 		int y = 0
 		while y < tagList.Length
 			if tagList[y] != "mods" && tagList[y] != "tags" && tagList[y] != "same"
@@ -279,7 +285,7 @@ function GetParsed2(string formula)
 	int x = 0
 	int y = 0
 	
-	string[] tagList = getTagLists("../pppsu/system.json")
+	string[] tagList = getTagLists(rulePresetsPath+systemPreset)
 	;Debug.MessageBox("tagList loaded")
 	;int numTags = tagList.Length
 	;tagList[numTags] = "SAME"
@@ -287,13 +293,13 @@ function GetParsed2(string formula)
 	while y < tagList.Length
 		if  tagList[y] != "mods" && tagList[y] != "tags"
 			int xxxx = StringUtil.Find(formula, tagList[y])
-			;Debug.MessageBox("Finding "+tagList[y]+" at "+xxxx)
+			Debug.MessageBox("Finding "+tagList[y]+" at "+xxxx)
 			if xxxx != -1
 				int undscrPos = xxxx+StringUtil.getLength(tagList[y])
 				string undscr = StringUtil.getNthChar(formula, undscrPos)
 				if undscr == "_"
 					int yy = 0
-					string getMod = JsonUtil.StringListGet("../pppsu/system.json", "mods",yy)
+					string getMod = JsonUtil.StringListGet(rulePresetsPath+systemPreset, "mods",yy)
 					while getMod
 						if getMod == StringUtil.Substring(formula, undscrPos, StringUtil.getLength(getMod))
 							int digPos = undscrPos+StringUtil.getLength(getMod)
@@ -316,7 +322,7 @@ function GetParsed2(string formula)
 						endif
 						
 						yy += 1
-						getMod = JsonUtil.StringListGet("../pppsu/system.json", "mods",yy)
+						getMod = JsonUtil.StringListGet(rulePresetsPath+systemPreset, "mods",yy)
 					endWhile
 				endif
 			endif
@@ -368,7 +374,7 @@ function OnConfigInit()
 	;PPPSUMCM = Game.GetFormFromFile(0x00000800, "PerkPointsPerSkillUps.esp") as PerkPointsPerSkillUpsMCM
 	StoreSkills(SkillUps)
 
-	; testfrml = JsonUtil.GetStringValue("../pppsu_presets/"+selectedFileName,"formula")
+	; testfrml = JsonUtil.GetStringValue(formulaPresetsPath+selectedFileName,"formula")
 	; GetParsed(testfrml)
 	; GetParsed(testfrml, "mage")
 	; GetParsed(testfrml, "warrior")
@@ -400,13 +406,8 @@ Int function GetVersion()
 	return 1
 endFunction
 
-string function GetJsonFormula()
-	JsonUtil.Unload("../pppsu/formula0.json")
-	return JsonUtil.GetStringValue("../pppsu/formula0.json","formula")
-endFunction
-
 function LoadJsonFormulas()
-	formulasLoaded = JsonUtil.JsonInFolder("../pppsu_presets")
+	formulasLoaded = JsonUtil.JsonInFolder(formulaPresetsPath)
 endFunction
 
 event OnVersionUpdate(int a_version)
@@ -518,9 +519,9 @@ state pppsuFormulasMenu
 		selectedFileIndex = value
 		selectedFileName = formulasLoaded[selectedFileIndex]
 		SetMenuOptionValueST(selectedFileName)
-		JsonUtil.Unload("../pppsu_presets/"+selectedFileName)
-		if JsonUtil.JsonExists("../pppsu_presets/"+selectedFileName)
-			testfrml = JsonUtil.GetStringValue("../pppsu_presets/"+selectedFileName,"formula")
+		JsonUtil.Unload(formulaPresetsPath+selectedFileName)
+		if JsonUtil.JsonExists(formulaPresetsPath+selectedFileName)
+			testfrml = JsonUtil.GetStringValue(formulaPresetsPath+selectedFileName,"formula")
 			GetParsed(testfrml)
 			;GetParsed(testfrml, "mage", false)
 			;GetParsed(testfrml, "warrior", false)
