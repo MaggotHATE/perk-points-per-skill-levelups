@@ -224,7 +224,7 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 		int y = 0
 		while y < tagList.Length
 			if tagList[y] != "mods" && tagList[y] != "tags" && tagList[y] != "same"
-				Debug.Notification("Parsing "+tagList[y])
+				;Debug.Notification("Parsing "+tagList[y])
 				GetParsed(testfrml, tagList[y], false)
 			endif
 			y += 1
