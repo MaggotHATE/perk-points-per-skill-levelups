@@ -22,11 +22,13 @@ string property rulePresetsPath = "../pppsu/" auto
 string testfrml = ""
 float PPPSUcalculated
 String[] formulasLoaded
+String[] rulesLoaded
 String[] tagsLoaded
 int selectedFileIndex = 0
-string selectedFileName = "default"
+int selectedFileIndex1 = 0
+string selectedFileName = "default.json"
+string selectedRuleName = "Vanilla.json"
 bool skillLess = false
-string systemPreset = "system.json"
 
 ;"LEVEL_c0.3-SKILL_c0.1+MAGE_max0.1+SAME_max0.2"
 ;string[] pppsu/system = ["LEVEL","SKILL","MAGE_max","MAGE_min","MAGE_sum","MAGE_legend","WARRIOR_max","WARRIOR_min","WARRIOR_sum","WARRIOR_legend","THIEF_max","THIEF_min","THIEF_sum","THIEF_legend","SAME_max","SAME_min","SAME_sum","SAME_legend"]
@@ -80,11 +82,11 @@ function resetArrays()
 endFunction
 
 bool function HasMod(string cMod)
-	return JsonUtil.StringListHas(rulePresetsPath+systemPreset, "mods", cMod)
+	return JsonUtil.StringListHas(rulePresetsPath+selectedRuleName, "mods", cMod)
 endFunction
 
 bool function HasTag(string cTag)
-	string[] tagList = getTagLists(rulePresetsPath+systemPreset)
+	string[] tagList = getTagLists(rulePresetsPath+selectedRuleName)
 	if tagList.Find(cTag) > -1
 		return true
 	endif
@@ -132,20 +134,20 @@ int function GetBySchool1(string school, string method)
 	int result = 0
 	if method == "_max"
 		int x = 0
-		string xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
+		string xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 		while xx
 			int tempAV = PlayerRef.getav(xx) as int
 			if result < tempAV
 				result = tempAV
 			endif
 			x += 1
-			xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
+			xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 			
 		endWhile
 		;Debug.Notification("max "+school+" "+result)
 	elseif method == "_min"
 		int x = 0
-		string xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
+		string xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 		result = PlayerRef.getav(xx) as int
 		while xx
 			int tempAV = PlayerRef.getav(xx) as int
@@ -153,25 +155,25 @@ int function GetBySchool1(string school, string method)
 				result = tempAV
 			endif
 			x += 1
-			xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
+			xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 		endWhile
 		;Debug.Notification("min "+school+" "+result)
 	elseif method == "_sum"
 		int x = 0
-		string xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
+		string xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 		while xx
 			result += PlayerRef.getav(xx) as int
 			x += 1
-			xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
+			xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 		endWhile
 		;Debug.Notification("sum "+school+" "+result)
 	elseif method == "_legend"
 		int x = 0
-		string xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
+		string xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 		while xx
 			result += ActorValueInfo.GetAVIByName(xx).GetSkillLegendaryLevel()
 			x += 1
-			xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, school,x)
+			xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 		endWhile
 		;Debug.Notification("legend "+school+" "+result)
 	endif
@@ -180,11 +182,11 @@ int function GetBySchool1(string school, string method)
 endFunction
 
 string function GetSchoolBySkill(string theSkill)	
-	if JsonUtil.StringListHas(rulePresetsPath+systemPreset, "mage",theSkill)
+	if JsonUtil.StringListHas(rulePresetsPath+selectedRuleName, "mage",theSkill)
 		return "mage"
-	elseif JsonUtil.StringListHas(rulePresetsPath+systemPreset, "warrior",theSkill)
+	elseif JsonUtil.StringListHas(rulePresetsPath+selectedRuleName, "warrior",theSkill)
 		return "warrior"
-	elseif JsonUtil.StringListHas(rulePresetsPath+systemPreset, "thief",theSkill)
+	elseif JsonUtil.StringListHas(rulePresetsPath+selectedRuleName, "thief",theSkill)
 		return "thief"
 	else
 		;Debug.MessageBox("Wrong school setup or skill!")
@@ -201,7 +203,7 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 
 	int x = 0
 	
-	string xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, tags,x)
+	string xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, tags,x)
 	while xx
 		int xxx = StringUtil.Find(formula, xx)
 		if xxx != -1
@@ -222,11 +224,11 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 			
 		endif
 		x += 1
-		xx = JsonUtil.StringListGet(rulePresetsPath+systemPreset, tags,x)
+		xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, tags,x)
 	endWhile
 	if tags == "TAGS"
 		GetParsed2(testfrml)
-		string[] tagList = getTagLists(rulePresetsPath+systemPreset)
+		string[] tagList = getTagLists(rulePresetsPath+selectedRuleName)
 		int y = 0
 		while y < tagList.Length
 			if tagList[y] != "mods" && tagList[y] != "tags" && tagList[y] != "same"
@@ -285,7 +287,7 @@ function GetParsed2(string formula)
 	int x = 0
 	int y = 0
 	
-	string[] tagList = getTagLists(rulePresetsPath+systemPreset)
+	string[] tagList = getTagLists(rulePresetsPath+selectedRuleName)
 	;Debug.MessageBox("tagList loaded")
 	;int numTags = tagList.Length
 	;tagList[numTags] = "SAME"
@@ -299,7 +301,7 @@ function GetParsed2(string formula)
 				string undscr = StringUtil.getNthChar(formula, undscrPos)
 				if undscr == "_"
 					int yy = 0
-					string getMod = JsonUtil.StringListGet(rulePresetsPath+systemPreset, "mods",yy)
+					string getMod = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, "mods",yy)
 					while getMod
 						if getMod == StringUtil.Substring(formula, undscrPos, StringUtil.getLength(getMod))
 							int digPos = undscrPos+StringUtil.getLength(getMod)
@@ -322,7 +324,7 @@ function GetParsed2(string formula)
 						endif
 						
 						yy += 1
-						getMod = JsonUtil.StringListGet(rulePresetsPath+systemPreset, "mods",yy)
+						getMod = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, "mods",yy)
 					endWhile
 				endif
 			endif
@@ -410,6 +412,10 @@ function LoadJsonFormulas()
 	formulasLoaded = JsonUtil.JsonInFolder(formulaPresetsPath)
 endFunction
 
+String[] function LoadJsons(string path)
+	return JsonUtil.JsonInFolder(path)
+endFunction
+
 event OnVersionUpdate(int a_version)
 	if (a_version >= 2 && CurrentVersion < 2)
 		PageInit()
@@ -425,36 +431,41 @@ function OnPageReset(String a_page)
 		self.AddHeaderOption("$pppsu_HEADER0")
 		self.AddEmptyOption()
 		self.AddSliderOptionST("pppsu_NumberOfPP", "$pppsu_NumberOfPPT", SkillUpsPerPerkPoint.GetValue() as float, "{1}")
-		self.AddEmptyOption()
+		self.AddMenuOptionST("pppsuRulesMenu", "$pppsu_RM", selectedRuleName)
 		self.AddSliderOptionST("pppsu_PPperDep", "$pppsu_PPperDepT", PerkPointsPerDeposit.GetValue() as float, "{1} each time")
+		
+		self.AddMenuOptionST("pppsuFormulasMenu", "$pppsu_FM", selectedFileName)
 		self.AddEmptyOption()
-		self.AddMenuOptionST("pppsuFormulasMenu", "$pppsu_FM", formulasLoaded[selectedFileIndex])
+		
+		
 		
 	elseif a_page == "$PerkPointsPerSkillUpsMCM_p1"
 		self.SetCursorFillMode(self.LEFT_TO_RIGHT)
-		float calc_AVGcalc = 0.0
 		;if skillLess == false
-		calc_AVGcalc = ProcessFormula2("alchemy")
+		string tSkill = "sneak"
+		string wSkill = "onehanded"
+		string mSkill = "destruction"
 		;else
 		;	calc_AVGcalc = ProcessFormula("")
 		;endif
 		self.AddTextOptionST("pppsu_Current", "$pppsu_CurrentT", SkillUps.GetValue() as float, OPTION_FLAG_NONE)
-		self.AddTextOptionST("pppsu_MSUM", "$pppsu_MSUMT", GetBySchool1("mage","_sum") as int, OPTION_FLAG_NONE)
-		self.AddEmptyOption()
-		self.AddTextOptionST("pppsu_WSUM", "$pppsu_WSUMT", GetBySchool1("warrior","_sum") as int, OPTION_FLAG_NONE)
-		self.AddEmptyOption()
-		self.AddTextOptionST("pppsu_TSUM", "$pppsu_TSUMT", GetBySchool1("thief","_sum") as int, OPTION_FLAG_NONE)
-		self.AddEmptyOption()
-		self.AddTextOptionST("pppsu_SKILLESS", "$pppsu_SKILLESS", skillLess, OPTION_FLAG_NONE)
-		self.AddEmptyOption()
 		if skillLess == true
-			self.AddTextOptionST("pppsu_AVGcalc", "$pppsu_AVGcalcT", calc_AVGcalc, OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_MSUM", "$pppsu_MSUMT", GetBySchool1("mage","_sum") as int, OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_AVGcalc", "$pppsu_AVGcalcT", ": " +ProcessFormula2(tSkill), OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_WSUM", "$pppsu_WSUMT", GetBySchool1("warrior","_sum") as int, OPTION_FLAG_NONE)
+			self.AddEmptyOption()
+			self.AddTextOptionST("pppsu_TSUM", "$pppsu_TSUMT", GetBySchool1("thief","_sum") as int, OPTION_FLAG_NONE)
+			self.AddEmptyOption()
+			self.AddTextOptionST("pppsu_SKILLESS", "$pppsu_SKILLESS", skillLess, OPTION_FLAG_NONE)
+			self.AddEmptyOption()	
 		else
-			self.AddTextOptionST("pppsu_AVGcalcT", "$pppsu_AVGcalcThiefT", calc_AVGcalc, OPTION_FLAG_NONE)
-			self.AddEmptyOption()
-			self.AddTextOptionST("pppsu_AVGcalcW", "$pppsu_AVGcalcWarT", ProcessFormula2("onehanded"), OPTION_FLAG_NONE)
-			self.AddEmptyOption()
-			self.AddTextOptionST("pppsu_AVGcalcM", "$pppsu_AVGcalcMageT", ProcessFormula2("destruction"), OPTION_FLAG_NONE)			
+			self.AddTextOptionST("pppsu_MSUM", "$pppsu_MSUMT", GetBySchool1("mage","_sum") as int, OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_AVGcalcT", "$pppsu_AVGcalcT", tSkill + ":    " + ProcessFormula2(tSkill), OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_WSUM", "$pppsu_WSUMT", GetBySchool1("warrior","_sum") as int, OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_AVGcalcW", "$pppsu_AVGcalcT", wSkill + ":    " +ProcessFormula2(wSkill), OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_TSUM", "$pppsu_TSUMT", GetBySchool1("thief","_sum") as int, OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_AVGcalcM", "$pppsu_AVGcalcT", mSkill + ":    " +ProcessFormula2(mSkill), OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_SKILLESS", "$pppsu_SKILLESS", skillLess, OPTION_FLAG_NONE)		
 		endif
 		int xx = 0
 		while FormulaTypes[xx]
@@ -509,7 +520,8 @@ endState
 state pppsuFormulasMenu
 
 	event OnMenuOpenST() 
-		LoadJsonFormulas()
+		;LoadJsonFormulas()
+		formulasLoaded = JsonUtil.JsonInFolder(formulaPresetsPath)
 		SetMenuDialogStartIndex(selectedFileIndex)
 		SetMenuDialogDefaultIndex(0)
 		SetMenuDialogOptions(formulasLoaded)
@@ -535,5 +547,27 @@ state pppsuFormulasMenu
 	endEvent
 endState
 
+state pppsuRulesMenu
+
+	event OnMenuOpenST() 
+		;LoadJsonFormulas()
+		rulesLoaded = JsonUtil.JsonInFolder(rulePresetsPath)
+		SetMenuDialogStartIndex(selectedFileIndex1)
+		SetMenuDialogDefaultIndex(0)
+		SetMenuDialogOptions(rulesLoaded)
+	endEvent
+
+	event OnMenuAcceptST(int value)
+		selectedFileIndex1 = value
+		JsonUtil.Unload(rulePresetsPath+selectedRuleName)
+		if JsonUtil.JsonExists(rulePresetsPath+selectedRuleName)
+			selectedRuleName = rulesLoaded[selectedFileIndex1]
+			SetMenuOptionValueST(selectedRuleName)
+			ForcePageReset()
+		else
+			Debug.MessageBox("File does not exist!")
+		endif
+	endEvent
+endState
 ;-- State -------------------------------------------
 
