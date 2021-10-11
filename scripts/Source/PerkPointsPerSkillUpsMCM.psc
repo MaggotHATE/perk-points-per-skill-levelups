@@ -394,7 +394,7 @@ endEvent
 
 function PageInit()
 	ModName = "$PerkPointsPerSkillUpsMCM_Name"
-	Pages = new String[12]
+	Pages = new String[2]
 	Pages[0] = "$PerkPointsPerSkillUpsMCM_p0"
 	Pages[1] = "$PerkPointsPerSkillUpsMCM_p1"
 	Debug.MessageBox("PageInit")
@@ -448,6 +448,8 @@ function OnPageReset(String a_page)
 		;else
 		;	calc_AVGcalc = ProcessFormula("")
 		;endif
+		self.AddHeaderOption("$pppsu_HEADER1")
+		self.AddHeaderOption(" ")
 		self.AddTextOptionST("pppsu_Current", "$pppsu_CurrentT", SkillUps.GetValue() as float, OPTION_FLAG_NONE)
 		if skillLess == true
 			self.AddTextOptionST("pppsu_MSUM", "$pppsu_MSUMT", GetBySchool1("mage","_sum") as int, OPTION_FLAG_NONE)
@@ -467,6 +469,8 @@ function OnPageReset(String a_page)
 			self.AddTextOptionST("pppsu_AVGcalcM", "$pppsu_AVGcalcT", mSkill + ":    " +ProcessFormula2(mSkill), OPTION_FLAG_NONE)
 			self.AddTextOptionST("pppsu_SKILLESS", "$pppsu_SKILLESS", skillLess, OPTION_FLAG_NONE)		
 		endif
+		self.AddHeaderOption("$pppsu_HEADER2")
+		self.AddHeaderOption(" ")
 		int xx = 0
 		while FormulaTypes[xx]
 			self.AddTextOptionST("pppsu_AVGcalcT"+xx, FormulaTypes[xx]+FormulaMods[xx], FormulaVals[xx]*FormulaOpers[xx], OPTION_FLAG_NONE)
