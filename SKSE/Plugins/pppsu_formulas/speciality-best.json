@@ -1,6 +1,6 @@
 {
 	"string" : 
 	{
-		"formula" : "X0.5+SAME_max0.005-SKILL_c0.003-WARRIOR_max0.003-MAGE_max0.003-THIEF_max0.003+MAGE_min0.0022+WARRIOR_min0.0022+THIEF_min0.0022"
+		"formula" : "X0.5+SAME_max0.002-SKILL_c0.003-WARRIOR_max0.003-MAGE_max0.003-THIEF_max0.003+MAGE_min0.0012+WARRIOR_min0.0012+THIEF_min0.0012"
 	}
 }
