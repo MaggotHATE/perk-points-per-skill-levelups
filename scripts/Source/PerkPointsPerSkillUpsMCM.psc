@@ -55,6 +55,7 @@ Event OnGameReload()
 	;tagsLoaded = getTagLists(rulePresetsPath+systemPreset) 
 	;Debug.Notification("Alchemy="+ProcessFormula2("Alchemy"))
 	; PageInit()
+	
 endEvent
 
 ;-- Functions ---------------------------------------
@@ -195,6 +196,7 @@ string function GetSchoolBySkill(string theSkill)
 endFunction
 
 function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
+	Debug.StartStackProfiling()
 	if resetIDX == true
 		resetArrays()
 		idx = 0
@@ -227,7 +229,7 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 		xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, tags,x)
 	endWhile
 	if tags == "TAGS"
-		GetParsed2(testfrml)
+		GetParsed3(testfrml)
 		string[] tagList = getTagLists(rulePresetsPath+selectedRuleName)
 		int y = 0
 		while y < tagList.Length
@@ -238,6 +240,7 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 			y += 1
 		endwhile
 	endif
+	Debug.StopStackProfiling()
 	;Debug.Notification("Finished "+tags)
 endFunction
 
@@ -278,6 +281,42 @@ int function getSign(string formula, int tagPos)
 	endif
 endFunction
 
+int function getSignByStr(string symbol)
+	if symbol == "-"
+		return -1
+	else
+		return 1
+	endif
+endFunction
+
+int function closestSign(string formula, int i = 0)
+	int plus = StringUtil.Find(formula, "+",i)
+	int minus = StringUtil.Find(formula, "-",i)
+	if plus == -1
+		return minus
+	elseif minus == -1
+		return plus
+	elseif plus > minus 
+		return minus
+	else
+		return plus
+	endif
+endFunction
+
+function GetParsed3(string formula)
+	string formulaTemp = formula
+	string tempTagDig = ""
+	string[] tagList = getTagLists(rulePresetsPath+selectedRuleName)
+	int sign = closestSign(formulaTemp,1)
+	while sign > -1 || closestSign(formulaTemp) > -1
+		tempTagDig = StringUtil.Substring(formulaTemp,0,sign)
+		formulaTemp = StringUtil.Substring(formulaTemp,StringUtil.getLength(tempTagDig))
+		sign = closestSign(formulaTemp,1)
+		;Debug.MessageBox("sign1 = "+sign+": "+tempTagDig)
+		GetParsed2(tempTagDig)		
+	endWhile
+endFunction
+
 function GetParsed2(string formula)
 	; if resetIDX == true
 		; idx = 0
@@ -291,47 +330,45 @@ function GetParsed2(string formula)
 	;Debug.MessageBox("tagList loaded")
 	;int numTags = tagList.Length
 	;tagList[numTags] = "SAME"
-	
-	while y < tagList.Length
-		if  tagList[y] != "mods" && tagList[y] != "tags"
-			int xxxx = StringUtil.Find(formula, tagList[y])
-			Debug.MessageBox("Finding "+tagList[y]+" at "+xxxx)
-			if xxxx != -1
-				int undscrPos = xxxx+StringUtil.getLength(tagList[y])
-				string undscr = StringUtil.getNthChar(formula, undscrPos)
-				if undscr == "_"
-					int yy = 0
-					string getMod = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, "mods",yy)
-					while getMod
-						if getMod == StringUtil.Substring(formula, undscrPos, StringUtil.getLength(getMod))
-							int digPos = undscrPos+StringUtil.getLength(getMod)
-							;Debug.MessageBox("mod? "+getMod+" at "+digPos)
-							float digit = getDigit(formula, digPos)
-							if digit != -1
-								FormulaOpers[idx] = getSign(formula, xxxx)
-								FormulaTypes[idx] = tagList[y]
-								FormulaMods[idx] = getMod
-								FormulaVals[idx] = digit
-								
-								;Debug.MessageBox("GP2 "+FormulaTypes[idx]+FormulaMods[idx]+" * "+FormulaVals[idx]+"*"+FormulaOpers[idx])
-								
-								idx += 1
-								if tagList[y] == "SAME"
-									skillLess = false
+		while y < tagList.Length
+			if  tagList[y] != "mods" && tagList[y] != "tags"
+				int xxxx = StringUtil.Find(formula, tagList[y])
+				;Debug.MessageBox("Finding "+tagList[y]+" at "+xxxx)
+				if xxxx != -1
+					int undscrPos = xxxx+StringUtil.getLength(tagList[y])
+					string undscr = StringUtil.getNthChar(formula, undscrPos)
+					if undscr == "_"
+						int yy = 0
+						string getMod = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, "mods",yy)
+						while getMod
+							if getMod == StringUtil.Substring(formula, undscrPos, StringUtil.getLength(getMod))
+								int digPos = undscrPos+StringUtil.getLength(getMod)
+								;Debug.MessageBox("mod? "+getMod+" at "+digPos)
+								float digit = getDigit(formula, digPos)
+								if digit != -1
+									FormulaOpers[idx] = getSign(formula, xxxx)
+									FormulaTypes[idx] = tagList[y]
+									FormulaMods[idx] = getMod
+									FormulaVals[idx] = digit
+									
+									;Debug.MessageBox("GP2 "+FormulaTypes[idx]+FormulaMods[idx]+" * "+FormulaVals[idx]+"*"+FormulaOpers[idx])
+									
+									idx += 1
+									if tagList[y] == "SAME"
+										skillLess = false
+									endif
+									
 								endif
-								
 							endif
-						endif
-						
-						yy += 1
-						getMod = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, "mods",yy)
-					endWhile
+							
+							yy += 1
+							getMod = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, "mods",yy)
+						endWhile
+					endif
 				endif
 			endif
-		endif
-		y += 1
-	endWhile
-	
+			y += 1
+		endWhile
 	
 endFunction
 
@@ -355,6 +392,11 @@ function StoreSkills(form storeForm)
 	StorageUtil.SetIntValue(storeForm, "pppsu_Sneak",PlayerRef.getbaseav("Sneak") as int)
 	StorageUtil.SetIntValue(storeForm, "pppsu_Speechcraft",PlayerRef.getbaseav("Speechcraft") as int)
 	;Debug.Notification("Finished StoreSkills. Smithing: "+StorageUtil.GetIntValue(storeForm, "pppsu_"+"Smithing"))
+endFunction
+
+function StoreSkill(form storeForm, string asSkill)
+	StorageUtil.SetIntValue(storeForm, "pppsu_"+asSkill,PlayerRef.getbaseav(asSkill) as int)
+	Debug.Notification("Finished StoreSkill "+asSkill+": "+StorageUtil.GetIntValue(storeForm, "pppsu_"+asSkill))
 endFunction
 
 function OnConfigInit()

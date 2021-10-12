@@ -17,6 +17,7 @@ PerkPointsPerSkillUpsMCM PPPSU_1
 ;-- Events ------------------------------------------
 
 Event OnStoryIncreaseSkill(string asSkill)
+	;Debug.StartScriptProfiling("PerkPointsPerSkillUpsMCM")
 	;PPPSUMCM = Game.GetFormFromFile(0x00000800, "PerkPointsPerSkillUps.esp")
 	;PPPSU = PerkPointsPerSkillUpsMCM.getPPPSU()
 	PPPSU_1 = Game.GetFormFromFile(0x00000C40, "PerkPointsPerSkillUps.esp") as PerkPointsPerSkillUpsMCM
@@ -58,7 +59,9 @@ Event OnStoryIncreaseSkill(string asSkill)
 		Debug.Notification(asSkill+ " skill increased, "+SkillUps.getvalue() as float+" total, " + PPPSUcalculated + " now")
 		
 	endif
-	PPPSU_1.StoreSkills(SkillUps)
+	;PPPSU_1.StoreSkills(SkillUps)
+	PPPSU_1.StoreSkill(SkillUps, asSkill)
+	
 	self.stop()
 endEvent
 
