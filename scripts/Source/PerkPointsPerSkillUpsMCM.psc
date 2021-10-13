@@ -41,11 +41,11 @@ bool skillLess = false
 
 
 Event OnGameReload()
-	Debug.MessageBox("OnGameReload1")
+	;Debug.MessageBox("OnGameReload1")
 	;formulaPresetsPath = "../pppsu_formulas/"
 	;rulePresetsPath = "../pppsu/"
 	parent.OnGameReload() ;Important!
-	testfrml = JsonUtil.GetStringValue(formulaPresetsPath+selectedFileName,"formula")
+	
 	;GetParsed(testfrml)
 	;GetParsed(testfrml, "mage", false)
 	;GetParsed(testfrml, "warrior", false)
@@ -396,7 +396,7 @@ endFunction
 
 function StoreSkill(form storeForm, string asSkill)
 	StorageUtil.SetIntValue(storeForm, "pppsu_"+asSkill,PlayerRef.getbaseav(asSkill) as int)
-	Debug.Notification("Finished StoreSkill "+asSkill+": "+StorageUtil.GetIntValue(storeForm, "pppsu_"+asSkill))
+	;Debug.Notification("Finished StoreSkill "+asSkill+": "+StorageUtil.GetIntValue(storeForm, "pppsu_"+asSkill))
 endFunction
 
 function OnConfigInit()
@@ -416,6 +416,8 @@ function OnConfigInit()
 	endif
 	
 	;PPPSUMCM = Game.GetFormFromFile(0x00000800, "PerkPointsPerSkillUps.esp") as PerkPointsPerSkillUpsMCM
+	testfrml = JsonUtil.GetStringValue(formulaPresetsPath+selectedFileName,"formula")
+	GetParsed(testfrml)
 	StoreSkills(SkillUps)
 
 	; testfrml = JsonUtil.GetStringValue(formulaPresetsPath+selectedFileName,"formula")
@@ -427,7 +429,7 @@ function OnConfigInit()
 	;Debug.Messagebox("Formula result: "+PPPSUcalculated+" skill points per skill upgrade!")
 	;StorageUtil.SetFloatValue(none, "PPPSUcalculated", PPPSUcalculated)
 	
-	Debug.MessageBox("OnConfigInit")	
+	Debug.Notification("Perk Points Per Skill Levelups initialized")	
 endFunction
 
 event OnConfigClose()
@@ -439,7 +441,7 @@ function PageInit()
 	Pages = new String[2]
 	Pages[0] = "$PerkPointsPerSkillUpsMCM_p0"
 	Pages[1] = "$PerkPointsPerSkillUpsMCM_p1"
-	Debug.MessageBox("PageInit")
+	;Debug.MessageBox("PageInit")
 endFunction
 
 
