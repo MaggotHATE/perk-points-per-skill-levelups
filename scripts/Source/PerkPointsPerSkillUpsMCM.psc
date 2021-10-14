@@ -105,10 +105,10 @@ float function ProcessFormula2(string CurrentSkill)
 			xx += 1
 		elseif FormulaTypes[x] == "LEVEL_c"
 			xx += PlayerRef.getlevel()
-		elseif FormulaTypes[x] == "SKILL_c" && PlayerRef.getav(CurrentSkill)
-			xx += PlayerRef.getav(CurrentSkill)	
+		elseif FormulaTypes[x] == "SKILL_c" && PlayerRef.getbaseav(CurrentSkill)
+			xx += PlayerRef.getbaseav(CurrentSkill)	
 		elseif GetSchoolBySkill(FormulaTypes[x]) != "EXCEPTION_SCHOOL_NULLPOINTER"
-			xx += PlayerRef.getav(FormulaTypes[x])
+			xx += PlayerRef.getbaseav(FormulaTypes[x])
 		elseif HasMod(FormulaMods[x])
 				if HasTag(FormulaTypes[x])
 					if FormulaTypes[x] == "SAME"
@@ -131,13 +131,12 @@ float function ProcessFormula2(string CurrentSkill)
 	return tempPPoints
 endFunction
 
-int function GetBySchool1(string school, string method)
-	int result = 0
-	if method == "_max"
+int function GetBySchoolMax(string school)
+		int result = 0
 		int x = 0
 		string xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 		while xx
-			int tempAV = PlayerRef.getav(xx) as int
+			int tempAV = PlayerRef.getbaseav(xx) as int
 			if result < tempAV
 				result = tempAV
 			endif
@@ -145,30 +144,39 @@ int function GetBySchool1(string school, string method)
 			xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 			
 		endWhile
-		;Debug.Notification("max "+school+" "+result)
-	elseif method == "_min"
+		return result
+endFunction
+
+int function GetBySchoolMin(string school)
+		int result = 0
 		int x = 0
 		string xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
-		result = PlayerRef.getav(xx) as int
+		result = PlayerRef.getbaseav(xx) as int
 		while xx
-			int tempAV = PlayerRef.getav(xx) as int
+			int tempAV = PlayerRef.getbaseav(xx) as int
 			if result > tempAV
 				result = tempAV
 			endif
 			x += 1
 			xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 		endWhile
-		;Debug.Notification("min "+school+" "+result)
-	elseif method == "_sum"
+		return result
+endFunction
+
+int function GetBySchoolSum(string school)
+		int result = 0
 		int x = 0
 		string xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 		while xx
-			result += PlayerRef.getav(xx) as int
+			result += PlayerRef.getbaseav(xx) as int
 			x += 1
 			xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 		endWhile
-		;Debug.Notification("sum "+school+" "+result)
-	elseif method == "_legend"
+		return result
+endFunction
+
+int function GetBySchoolLeg(string school)
+		int result = 0
 		int x = 0
 		string xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 		while xx
@@ -176,6 +184,22 @@ int function GetBySchool1(string school, string method)
 			x += 1
 			xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
 		endWhile
+		return result
+endFunction
+
+int function GetBySchool1(string school, string method)
+	int result = 0
+	if method == "_max"
+		result = GetBySchoolMax(school)
+		;Debug.Notification("max "+school+" "+result)
+	elseif method == "_min"
+		result = GetBySchoolMin(school)
+		;Debug.Notification("min "+school+" "+result)
+	elseif method == "_sum"
+		result = GetBySchoolSum(school)
+		;Debug.Notification("sum "+school+" "+result)
+	elseif method == "_legend"
+		result = GetBySchoolLeg(school)
 		;Debug.Notification("legend "+school+" "+result)
 	endif
 	;Debug.Notification("#"+idx + " " + school+" "+method+" "+result)
