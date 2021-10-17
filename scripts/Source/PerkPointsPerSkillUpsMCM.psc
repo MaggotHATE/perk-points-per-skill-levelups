@@ -12,7 +12,7 @@ string[] property FormulaMods auto
 float[] property FormulaVals auto
 int[] property FormulaOpers auto
 int idx
-int[] property PlayerSkillsStored auto
+String[] property tagList auto
 form property PPPSUMCM auto
 string property formulaPresetsPath = "../pppsu_formulas/" auto
 string property rulePresetsPath = "../pppsu/" auto
@@ -28,6 +28,7 @@ int selectedFileIndex = 0
 int selectedFileIndex1 = 0
 string selectedFileName = "default.json"
 string selectedRuleName = "Vanilla.json"
+
 bool skillLess = false
 
 ;"LEVEL_c0.3-SKILL_c0.1+MAGE_max0.1+SAME_max0.2"
@@ -55,6 +56,9 @@ Event OnGameReload()
 	;tagsLoaded = getTagLists(rulePresetsPath+systemPreset) 
 	;Debug.Notification("Alchemy="+ProcessFormula2("Alchemy"))
 	; PageInit()
+	if tagList.Length == 0
+		tagList = getTagLists(rulePresetsPath+selectedRuleName)
+	endif
 	
 endEvent
 
@@ -87,7 +91,6 @@ bool function HasMod(string cMod)
 endFunction
 
 bool function HasTag(string cTag)
-	string[] tagList = getTagLists(rulePresetsPath+selectedRuleName)
 	if tagList.Find(cTag) > -1
 		return true
 	endif
@@ -107,14 +110,16 @@ float function ProcessFormula2(string CurrentSkill)
 			xx += PlayerRef.getlevel()
 		elseif FormulaTypes[x] == "SKILL_c" && PlayerRef.getbaseav(CurrentSkill)
 			xx += PlayerRef.getbaseav(CurrentSkill)	
-		elseif GetSchoolBySkill(FormulaTypes[x]) != "EXCEPTION_SCHOOL_NULLPOINTER"
+		elseif GetSchoolBySkill1(FormulaTypes[x]) != "EXCEPTION_SCHOOL_NULLPOINTER"
 			xx += PlayerRef.getbaseav(FormulaTypes[x])
 		elseif HasMod(FormulaMods[x])
 				if HasTag(FormulaTypes[x])
 					if FormulaTypes[x] == "SAME"
-						string bySkill = GetSchoolBySkill(CurrentSkill)
+						string bySkill = GetSchoolBySkill1(CurrentSkill)
 						;Debug.Notification(FormulaTypes[x]+" into "+bySkill)
-						xx += GetBySchool1(bySkill,FormulaMods[x])
+						if bySkill != "EXCEPTION_SCHOOL_NULLPOINTER"
+							xx += GetBySchool1(bySkill,FormulaMods[x])
+						endif
 					else
 						xx += GetBySchool1(FormulaTypes[x],FormulaMods[x])
 					endif					
@@ -206,7 +211,7 @@ int function GetBySchool1(string school, string method)
 	return result
 endFunction
 
-string function GetSchoolBySkill(string theSkill)	
+string function GetSchoolBySkill(string theSkill)
 	if JsonUtil.StringListHas(rulePresetsPath+selectedRuleName, "mage",theSkill)
 		return "mage"
 	elseif JsonUtil.StringListHas(rulePresetsPath+selectedRuleName, "warrior",theSkill)
@@ -219,7 +224,20 @@ string function GetSchoolBySkill(string theSkill)
 	endif
 endFunction
 
+string function GetSchoolBySkill1(string theSkill)
+	int y = 0
+	while y < tagList.Length
+		if  tagList[y] != "mods" && tagList[y] != "tags" && tagList[y] != "SAME" && JsonUtil.StringListHas(rulePresetsPath+selectedRuleName, tagList[y],theSkill)
+				;Debug.MessageBox(theSkill+" in " + tagList[y])
+				return tagList[y]
+		endif
+		y += 1
+	endwhile
+	return "EXCEPTION_SCHOOL_NULLPOINTER"
+endFunction
+
 function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
+	tagList = getTagLists(rulePresetsPath+selectedRuleName)
 	Debug.StartStackProfiling()
 	if resetIDX == true
 		resetArrays()
@@ -254,7 +272,6 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 	endWhile
 	if tags == "TAGS"
 		GetParsed3(testfrml)
-		string[] tagList = getTagLists(rulePresetsPath+selectedRuleName)
 		int y = 0
 		while y < tagList.Length
 			if tagList[y] != "mods" && tagList[y] != "tags" && tagList[y] != "same"
@@ -263,16 +280,16 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 			endif
 			y += 1
 		endwhile
+	Debug.MessageBox("Finished loading "+selectedFileName)
 	endif
 	Debug.StopStackProfiling()
-	;Debug.Notification("Finished "+tags)
 endFunction
 
 string[] function getTagLists(string path)
-	string[] tagList = JsonUtil.PathMembers(path, ".stringList")
+	string[] tList = JsonUtil.PathMembers(path, ".stringList")
 	
 	;Debug.Notification("tempTagList 0 = "+tagList[0])
-	return tagList
+	return tList
 endFunction
 
 float function getDigit(string formula, int digPos)
@@ -330,7 +347,6 @@ endFunction
 function GetParsed3(string formula)
 	string formulaTemp = formula
 	string tempTagDig = ""
-	string[] tagList = getTagLists(rulePresetsPath+selectedRuleName)
 	int sign = closestSign(formulaTemp,1)
 	while sign > -1 || closestSign(formulaTemp) > -1
 		tempTagDig = StringUtil.Substring(formulaTemp,0,sign)
@@ -350,7 +366,6 @@ function GetParsed2(string formula)
 	int x = 0
 	int y = 0
 	
-	string[] tagList = getTagLists(rulePresetsPath+selectedRuleName)
 	;Debug.MessageBox("tagList loaded")
 	;int numTags = tagList.Length
 	;tagList[numTags] = "SAME"
@@ -435,8 +450,9 @@ function OnConfigInit()
 	if FormulaVals.Length == 0
 		FormulaVals = new float[128]
 	endif
-	if PlayerSkillsStored.Length == 0
-		PlayerSkillsStored = new int[128]
+	
+	if tagList.Length == 0
+		tagList = getTagLists(rulePresetsPath+selectedRuleName)
 	endif
 	
 	;PPPSUMCM = Game.GetFormFromFile(0x00000800, "PerkPointsPerSkillUps.esp") as PerkPointsPerSkillUpsMCM
@@ -513,6 +529,7 @@ function OnPageReset(String a_page)
 		string tSkill = "sneak"
 		string wSkill = "onehanded"
 		string mSkill = "destruction"
+		string testSkill = "Marksman"
 		;else
 		;	calc_AVGcalc = ProcessFormula("")
 		;endif
@@ -537,8 +554,9 @@ function OnPageReset(String a_page)
 			self.AddTextOptionST("pppsu_AVGcalcM", "$pppsu_AVGcalcT", mSkill + ":    " +ProcessFormula2(mSkill), OPTION_FLAG_NONE)
 			self.AddTextOptionST("pppsu_SKILLESS", "$pppsu_SKILLESS", skillLess, OPTION_FLAG_NONE)		
 		endif
-		self.AddHeaderOption("$pppsu_HEADER2")
 		self.AddHeaderOption(" ")
+		self.AddHeaderOption("$pppsu_HEADER2")
+		self.AddTextOptionST("pppsu_AVGcalcTest", "$pppsu_AVGcalcTestT", testSkill + " in " + GetSchoolBySkill1(testSkill) + ":  " + ProcessFormula2(testSkill), OPTION_FLAG_NONE)
 		int xx = 0
 		while FormulaTypes[xx]
 			self.AddTextOptionST("pppsu_AVGcalcT"+xx, FormulaTypes[xx]+FormulaMods[xx], FormulaVals[xx]*FormulaOpers[xx], OPTION_FLAG_NONE)

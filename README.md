@@ -1,23 +1,51 @@
 Gain skill points for leveling skills. Configurable formulas, standardized parsing, MCM. 
 
-This mod adds an ability to gain skill points as you improve skills and was meant to go along with Time-Based Enemy Scaling (Automatic) https://www.nexusmods.com/skyrimspecialedition/mods/27203 mod. 
-However, this mod is independent, and you can use it with or without mods that change leveling - all it need is vanilla skill level gain event to happen.
+This mod adds an option to gain skill points as you improve skills, and it was meant to go along with Time-Based Enemy Scaling (Automatic) https://www.nexusmods.com/skyrimspecialedition/mods/27203 mod. 
+However, this mod is independent, and you can use it with or without mods that change leveling - all it needs is vanilla skill level increase event to happen.
 
-The idea is pretty simple, so I decided to develop it further by adding configurable formulas, that suppor: 
--Flat number
--Current skill level
--Current player level
--Any particular skill
--Any school or group of skills (see below) with modifiers.
+
+REQUIREMENTS:
+SKSE64
+PapyrusUtil
+
+The idea itself is pretty simple, so I decided to expand it with configurable formulas, stored in .json files and loaded through MCM.
+Formulas can have elements of "TagValue", i.e. MAGE_min0.01
+In this example, tag consists of a school (MAGE) and a modifier (_min).
+
+Modifiers are:
+_max and _min - the most and least developed skills in a school;
+_sum - the sum of all skills levels in a school;
+_legendary - the sum of all legendary levels in a school.
+
+These can be applied together with any defined school, i.e. WARRIOR_sum, THIEF_max, etc.
+There's also a specific SAME category, which takes the same school as of the skill we've just upgraded.
+So, if we've just leveled up OneHanded skill, SAME_sum will be equal to WARRIOR_sum.
+
+The exact categories are defined by ruleset in separate .json files in \SKSE\Plugins\pppsu. 
+Such system allows you to change categories by swapping skills between schools (i.e. marksmanship can be a warrior skill, or a thief skill - see "Vanilla" and "Vanilla_fixed" rulesets, accordingly), or even add your own categories to exclude some skills from calculations (see "Craft" ruleset).
+   
+Additionally, there are specific tags:
+-Flat number (X), 
+-Current skill level (SKILL_c),
+-Current player level (LEVEL_c),
+-Any player skill *(see "Additional information" below).
+These don't support any modifiers, i.e. SKILL_c0.001 or destruction0.0023, etc.
+
+In the end, every skill level up gives you a progress value, and reaching a certain value (1 by default, configurable in MCM) is gieves you a perk point. You can define how many perk points are given and what progress value do you need to reach, allowing you to balance easier. 
 
 Example:
 
 "X0.5+SAME_sum0.005-SKILL_c0.0025-WARRIOR_max0.0031-MAGE_min0.0031-THIEF_sum0.0032+Lockpicking0.001"
-Flat number, 
-same school as the skill we've just leveled up - sum of all skills,
-that skill's level,
-Warrior school - the 
-Mage school
-Thief school - 
+Flat 0.5, 
++sum of all skills in the same school as the skill we've just leveled up * 0.005,
+-that skill's level * 0.0025,
+Warrior school - the most developed skill level * 0.0031, 
+Mage school - the most developed skill level * 0.0031,
+Thief school - sum of all skills in that school * 0.0032,
+Lockpicking skill level * 0.001.
 
-These formulas can be added in .json files and loaded during the game - all calculations happen when the event fires, so there's no problem changing formulas in-between.
+The formula itself is loaded once - when you choose it in MCM (or at the start of the game - default.json is loaded). However, calculations happen at skill levelup event, so you can swap formulas midgame. 
+If you get multiple levels at once, calculations will take some time (depends on formula complexity), as they are taking each gained level one by one.
+
+Additional information:
+*Technically, 
