@@ -37,13 +37,15 @@ In the end, every skill level up gives you a progress value, and reaching a cert
 Example:
 
 "X0.5+SAME_sum0.005-SKILL_c0.0025-WARRIOR_max0.0031-MAGE_min0.0031-THIEF_sum0.0032+Lockpicking0.001"
-Flat 0.5, 
+
+Flat 0.5,
 +sum of all skills in the same school as the skill we've just leveled up * 0.005,
 -that skill's level * 0.0025,
-Warrior school - the most developed skill level * 0.0031, 
+Warrior school - the most developed skill level * 0.0031,
 Mage school - the most developed skill level * 0.0031,
 Thief school - sum of all skills in that school * 0.0032,
 Lockpicking skill level * 0.001.
+
 
 Additional information:
 
