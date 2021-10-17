@@ -5,6 +5,7 @@ However, this mod is independent, and you can use it with or without mods that c
 
 
 REQUIREMENTS:
+
 SKSE64
 PapyrusUtil
 
@@ -24,7 +25,7 @@ So, for example, if we've just leveled up OneHanded skill, SAME_sum will be equa
 
 The exact categories are defined by rulesets in separate .json files in "\SKSE\Plugins\pppsu". 
 Such system allows you to change categories by swapping skills between schools (i.e. marksmanship can be a warrior skill, or a thief skill - see "Vanilla" and "Vanilla_fixed" rulesets, accordingly), or even add your own categories to exclude some skills from calculations (see "Craft" ruleset).
-   
+
 Additionally, there are specific tags:
 -Flat number (X), 
 -Current skill level (SKILL_c),
@@ -38,17 +39,19 @@ Example:
 
 "X0.5+SAME_sum0.005-SKILL_c0.0025-WARRIOR_max0.0031-MAGE_min0.0031-THIEF_sum0.0032+Lockpicking0.001"
 
-Flat 0.5,
-+sum of all skills in the same school as the skill we've just leveled up * 0.005,
--that skill's level * 0.0025,
-Warrior school - the most developed skill level * 0.0031,
-Mage school - the most developed skill level * 0.0031,
-Thief school - sum of all skills in that school * 0.0032,
-Lockpicking skill level * 0.001.
++Flat 0.5,
++(sum of all skills in the same school as the skill we've just leveled up) * 0.005,
+-(that skill's level) * 0.0025,
+-(Warrior school: the most developed skill level) * 0.0031,
+-(Mage school: the least developed skill level) * 0.0031,
+-(Thief school: sum of all skills in that school) * 0.0032,
++(Lockpicking skill level) * 0.001.
 
 
 Additional information:
 
-The formula itself is loaded only when you choose it in MCM (or at the start of the game - default.json is loaded), or switch rulesets. However, calculations happen at skill levelup event, so you can swap formulas midgame.
+The formula itself is loaded only when you choose it in MCM (or at the start of the game - default.json is loaded), or switch rulesets. 
+However, calculations happen at skill levelup event, so you can swap formulas midgame.
 If you get multiple levels at once, calculations will take some time (depends on formula complexity), as they are taking each gained level one by one.
+
 *Technically, skill are just actor values, so you can put any existing AV into a category and use it in calculations.
