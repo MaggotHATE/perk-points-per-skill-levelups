@@ -552,7 +552,8 @@ function OnPageReset(String a_page)
 			self.AddTextOptionST("pppsu_AVGcalcW", "$pppsu_AVGcalcT", wSkill + ":    " +ProcessFormula2(wSkill), OPTION_FLAG_NONE)
 			self.AddTextOptionST("pppsu_TSUM", "$pppsu_TSUMT", GetBySchool1("thief","_sum") as int, OPTION_FLAG_NONE)
 			self.AddTextOptionST("pppsu_AVGcalcM", "$pppsu_AVGcalcT", mSkill + ":    " +ProcessFormula2(mSkill), OPTION_FLAG_NONE)
-			self.AddTextOptionST("pppsu_SKILLESS", "$pppsu_SKILLESS", skillLess, OPTION_FLAG_NONE)		
+			;self.AddTextOptionST("pppsu_SKILLESS", "$pppsu_SKILLESS", skillLess, OPTION_FLAG_NONE)	
+			self.AddEmptyOption()
 		endif
 		self.AddHeaderOption(" ")
 		self.AddHeaderOption("$pppsu_HEADER2")
@@ -653,6 +654,7 @@ state pppsuRulesMenu
 		if JsonUtil.JsonExists(rulePresetsPath+selectedRuleName)
 			selectedRuleName = rulesLoaded[selectedFileIndex1]
 			SetMenuOptionValueST(selectedRuleName)
+			GetParsed(testfrml)
 			ForcePageReset()
 		else
 			Debug.MessageBox("File does not exist!")
