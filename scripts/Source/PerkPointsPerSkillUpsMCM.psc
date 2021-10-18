@@ -98,32 +98,27 @@ bool function HasTag(string cTag)
 endFunction
 
 float function ProcessFormula2(string CurrentSkill)
+	Debug.StartStackProfiling()
 	int x = idx - 1
 	;Debug.Notification("Starting from "+x)
 	float tempPPoints = 0
 	;Debug.Notification("CurrentSkill="+CurrentSkill)
 	while x >= 0
 		float xx = 0
-		if FormulaTypes[x] == "X"
+		if FormulaTypes[x] == "X" ;the simplest
 			xx += 1
-		elseif FormulaTypes[x] == "LEVEL_c"
+		elseif FormulaTypes[x] == "LEVEL_c" ;second simplest
 			xx += PlayerRef.getlevel()
-		elseif FormulaTypes[x] == "SKILL_c" && PlayerRef.getbaseav(CurrentSkill)
-			xx += PlayerRef.getbaseav(CurrentSkill)	
-		elseif GetSchoolBySkill1(FormulaTypes[x]) != "EXCEPTION_SCHOOL_NULLPOINTER"
-			xx += PlayerRef.getbaseav(FormulaTypes[x])
-		elseif HasMod(FormulaMods[x])
-				if HasTag(FormulaTypes[x])
-					if FormulaTypes[x] == "SAME"
-						string bySkill = GetSchoolBySkill1(CurrentSkill)
-						;Debug.Notification(FormulaTypes[x]+" into "+bySkill)
-						if bySkill != "EXCEPTION_SCHOOL_NULLPOINTER"
-							xx += GetBySchool1(bySkill,FormulaMods[x])
-						endif
-					else
-						xx += GetBySchool1(FormulaTypes[x],FormulaMods[x])
-					endif					
-				endif
+		elseif FormulaTypes[x] == "SKILL_c" ;&& PlayerRef.getbaseactorvalue(CurrentSkill), probably not necessary, since it's called with skills only    
+			xx += PlayerRef.getbaseactorvalue(CurrentSkill)
+		elseif HasMod(FormulaMods[x]) && HasTag(FormulaTypes[x]) ;make sure we have both
+			string skillSchool = FormulaTypes[x] ;unifying checks
+			if skillSchool == "SAME"
+				skillSchool = GetSchoolBySkill1(CurrentSkill)
+			endif			
+			xx += GetBySchool1(skillSchool,FormulaMods[x]) ;additional checks are not necessary if parsing works correctly (it does for now)
+		elseif GetSchoolBySkill1(FormulaTypes[x]) != "EXCEPTION_SCHOOL_NULLPOINTER" ;now we need to check
+			xx += PlayerRef.getbaseactorvalue(FormulaTypes[x])
 		endif
 		
 		tempPPoints += xx*FormulaVals[x]*FormulaOpers[x]
@@ -131,84 +126,76 @@ float function ProcessFormula2(string CurrentSkill)
 		x -= 1
 	endwhile
 	if tempPPoints < 0.001
-		tempPPoints = 0.001
+		tempPPoints = 0.001 ;prevents negative values 
 	endif
+	Debug.StopStackProfiling()
 	return tempPPoints
 endFunction
 
-int function GetBySchoolMax(string school)
-		int result = 0
-		int x = 0
-		string xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
-		while xx
-			int tempAV = PlayerRef.getbaseav(xx) as int
-			if result < tempAV
-				result = tempAV
-			endif
-			x += 1
-			xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
-			
-		endWhile
-		return result
+int function getBySchoolMax1(string[] schoolElems)
+	int result = 0
+	int x = 0
+	while x < schoolElems.length
+		int tmpAV = PlayerRef.getbaseactorvalue(schoolElems[x]) as int
+		if result < tmpAV
+			result = tmpAV
+		endif
+		x += 1 
+	endWhile
+	return result
 endFunction
 
-int function GetBySchoolMin(string school)
-		int result = 0
-		int x = 0
-		string xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
-		result = PlayerRef.getbaseav(xx) as int
-		while xx
-			int tempAV = PlayerRef.getbaseav(xx) as int
-			if result > tempAV
-				result = tempAV
-			endif
-			x += 1
-			xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
-		endWhile
-		return result
+int function getBySchoolMin1(string[] schoolElems)
+	int x = 0
+	int result = 300 ;since it's the largest value according to the Uncapper
+	while x < schoolElems.length
+		int tmpAV = PlayerRef.getbaseactorvalue(schoolElems[x]) as int
+		if result > tmpAV
+			result = tmpAV
+		endif
+		x += 1
+	endWhile
+	return result
 endFunction
 
-int function GetBySchoolSum(string school)
-		int result = 0
-		int x = 0
-		string xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
-		while xx
-			result += PlayerRef.getbaseav(xx) as int
-			x += 1
-			xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
-		endWhile
-		return result
+int function getBySchoolLeg1(string[] schoolElems)
+	int result = 0
+	int x = 0
+	while x < schoolElems.length
+		result += ActorValueInfo.GetActorValueInfoByName(schoolElems[x]).GetSkillLegendaryLevel()
+		x += 1
+	endWhile
+	return result
 endFunction
 
-int function GetBySchoolLeg(string school)
-		int result = 0
-		int x = 0
-		string xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
-		while xx
-			result += ActorValueInfo.GetAVIByName(xx).GetSkillLegendaryLevel()
-			x += 1
-			xx = JsonUtil.StringListGet(rulePresetsPath+selectedRuleName, school,x)
-		endWhile
-		return result
+int function getBySchoolSum1(string[] schoolElems)
+	int result = 0
+	int x = 0
+	while x < schoolElems.length
+		result += PlayerRef.getbaseactorvalue(schoolElems[x]) as int
+		x += 1 
+	endWhile
+	return result
 endFunction
 
 int function GetBySchool1(string school, string method)
-	int result = 0
+	;int result = 0
+	string[] schoolElems = JsonUtil.StringListToArray(rulePresetsPath+selectedRuleName, school)
 	if method == "_max"
-		result = GetBySchoolMax(school)
+		return GetBySchoolMax1(schoolElems)
 		;Debug.Notification("max "+school+" "+result)
 	elseif method == "_min"
-		result = GetBySchoolMin(school)
+		return GetBySchoolMin1(schoolElems)
 		;Debug.Notification("min "+school+" "+result)
 	elseif method == "_sum"
-		result = GetBySchoolSum(school)
+		return GetBySchoolSum1(schoolElems)
 		;Debug.Notification("sum "+school+" "+result)
 	elseif method == "_legend"
-		result = GetBySchoolLeg(school)
+		return GetBySchoolLeg1(schoolElems)
 		;Debug.Notification("legend "+school+" "+result)
 	endif
 	;Debug.Notification("#"+idx + " " + school+" "+method+" "+result)
-	return result
+	return 0
 endFunction
 
 string function GetSchoolBySkill(string theSkill)
@@ -238,7 +225,7 @@ endFunction
 
 function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 	tagList = getTagLists(rulePresetsPath+selectedRuleName)
-	Debug.StartStackProfiling()
+	;Debug.StartStackProfiling()
 	if resetIDX == true
 		resetArrays()
 		idx = 0
@@ -282,7 +269,7 @@ function GetParsed(string formula, string tags = "TAGS", bool resetIDX = true)
 		endwhile
 	Debug.MessageBox("Finished loading "+selectedFileName)
 	endif
-	Debug.StopStackProfiling()
+	;Debug.StopStackProfiling()
 endFunction
 
 string[] function getTagLists(string path)
@@ -412,29 +399,29 @@ function GetParsed2(string formula)
 endFunction
 
 function StoreSkills(form storeForm)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Alteration",PlayerRef.getbaseav("Alteration") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Conjuration",PlayerRef.getbaseav("Conjuration") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Destruction",PlayerRef.getbaseav("Destruction") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Enchanting",PlayerRef.getbaseav("Enchanting") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Restoration",PlayerRef.getbaseav("Restoration") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Illusion",PlayerRef.getbaseav("Illusion") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Marksman",PlayerRef.getbaseav("Marksman") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Block",PlayerRef.getbaseav("Block") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_HeavyArmor",PlayerRef.getbaseav("HeavyArmor") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Onehanded",PlayerRef.getbaseav("Onehanded") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Smithing",PlayerRef.getbaseav("Smithing") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Twohanded",PlayerRef.getbaseav("Twohanded") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Alchemy",PlayerRef.getbaseav("Alchemy") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_LightArmor",PlayerRef.getbaseav("LightArmor") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Lockpicking",PlayerRef.getbaseav("Lockpicking") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Pickpocket",PlayerRef.getbaseav("Pickpocket") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Sneak",PlayerRef.getbaseav("Sneak") as int)
-	StorageUtil.SetIntValue(storeForm, "pppsu_Speechcraft",PlayerRef.getbaseav("Speechcraft") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Alteration",PlayerRef.getbaseactorvalue("Alteration") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Conjuration",PlayerRef.getbaseactorvalue("Conjuration") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Destruction",PlayerRef.getbaseactorvalue("Destruction") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Enchanting",PlayerRef.getbaseactorvalue("Enchanting") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Restoration",PlayerRef.getbaseactorvalue("Restoration") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Illusion",PlayerRef.getbaseactorvalue("Illusion") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Marksman",PlayerRef.getbaseactorvalue("Marksman") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Block",PlayerRef.getbaseactorvalue("Block") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_HeavyArmor",PlayerRef.getbaseactorvalue("HeavyArmor") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Onehanded",PlayerRef.getbaseactorvalue("Onehanded") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Smithing",PlayerRef.getbaseactorvalue("Smithing") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Twohanded",PlayerRef.getbaseactorvalue("Twohanded") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Alchemy",PlayerRef.getbaseactorvalue("Alchemy") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_LightArmor",PlayerRef.getbaseactorvalue("LightArmor") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Lockpicking",PlayerRef.getbaseactorvalue("Lockpicking") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Pickpocket",PlayerRef.getbaseactorvalue("Pickpocket") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Sneak",PlayerRef.getbaseactorvalue("Sneak") as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_Speechcraft",PlayerRef.getbaseactorvalue("Speechcraft") as int)
 	;Debug.Notification("Finished StoreSkills. Smithing: "+StorageUtil.GetIntValue(storeForm, "pppsu_"+"Smithing"))
 endFunction
 
 function StoreSkill(form storeForm, string asSkill)
-	StorageUtil.SetIntValue(storeForm, "pppsu_"+asSkill,PlayerRef.getbaseav(asSkill) as int)
+	StorageUtil.SetIntValue(storeForm, "pppsu_"+asSkill,PlayerRef.getbaseactorvalue(asSkill) as int)
 	;Debug.Notification("Finished StoreSkill "+asSkill+": "+StorageUtil.GetIntValue(storeForm, "pppsu_"+asSkill))
 endFunction
 
