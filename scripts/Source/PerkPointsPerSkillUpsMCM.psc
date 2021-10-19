@@ -16,6 +16,7 @@ String[] property tagList auto
 form property PPPSUMCM auto
 string property formulaPresetsPath = "../pppsu_formulas/" auto
 string property rulePresetsPath = "../pppsu/" auto
+float property realPerkPoints auto
 ;string CurrentSkill
 
 ;-- Variables ---------------------------------------
@@ -26,7 +27,7 @@ String[] rulesLoaded
 String[] tagsLoaded
 int selectedFileIndex = 0
 int selectedFileIndex1 = 0
-string selectedFileName = "default.json"
+string selectedFileName = "skill-based.json"
 string selectedRuleName = "Vanilla.json"
 
 bool skillLess = false
@@ -524,23 +525,23 @@ function OnPageReset(String a_page)
 		self.AddHeaderOption(" ")
 		self.AddTextOptionST("pppsu_Current", "$pppsu_CurrentT", SkillUps.GetValue() as float, OPTION_FLAG_NONE)
 		if skillLess == true
-			self.AddTextOptionST("pppsu_MSUM", "$pppsu_MSUMT", GetBySchool1("mage","_sum") as int, OPTION_FLAG_NONE)
+			self.AddEmptyOption()
 			self.AddTextOptionST("pppsu_AVGcalc", "$pppsu_AVGcalcT", ": " +ProcessFormula2(tSkill), OPTION_FLAG_NONE)
-			self.AddTextOptionST("pppsu_WSUM", "$pppsu_WSUMT", GetBySchool1("warrior","_sum") as int, OPTION_FLAG_NONE)
-			self.AddEmptyOption()
 			self.AddTextOptionST("pppsu_TSUM", "$pppsu_TSUMT", GetBySchool1("thief","_sum") as int, OPTION_FLAG_NONE)
 			self.AddEmptyOption()
-			self.AddTextOptionST("pppsu_SKILLESS", "$pppsu_SKILLESS", skillLess, OPTION_FLAG_NONE)
-			self.AddEmptyOption()	
-		else
 			self.AddTextOptionST("pppsu_MSUM", "$pppsu_MSUMT", GetBySchool1("mage","_sum") as int, OPTION_FLAG_NONE)
-			self.AddTextOptionST("pppsu_AVGcalcT", "$pppsu_AVGcalcT", tSkill + ":    " + ProcessFormula2(tSkill), OPTION_FLAG_NONE)
 			self.AddTextOptionST("pppsu_WSUM", "$pppsu_WSUMT", GetBySchool1("warrior","_sum") as int, OPTION_FLAG_NONE)
-			self.AddTextOptionST("pppsu_AVGcalcW", "$pppsu_AVGcalcT", wSkill + ":    " +ProcessFormula2(wSkill), OPTION_FLAG_NONE)
-			self.AddTextOptionST("pppsu_TSUM", "$pppsu_TSUMT", GetBySchool1("thief","_sum") as int, OPTION_FLAG_NONE)
-			self.AddTextOptionST("pppsu_AVGcalcM", "$pppsu_AVGcalcT", mSkill + ":    " +ProcessFormula2(mSkill), OPTION_FLAG_NONE)
-			;self.AddTextOptionST("pppsu_SKILLESS", "$pppsu_SKILLESS", skillLess, OPTION_FLAG_NONE)	
+			self.AddTextOptionST("pppsu_SKILLESS", "$pppsu_SKILLESS", skillLess, OPTION_FLAG_NONE)	
 			self.AddEmptyOption()
+		else
+			self.AddEmptyOption()
+			self.AddTextOptionST("pppsu_AVGcalcT", "$pppsu_AVGcalcT", tSkill + ":    " + ProcessFormula2(tSkill), OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_TSUM", "$pppsu_TSUMT", GetBySchool1("thief","_sum") as int, OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_AVGcalcW", "$pppsu_AVGcalcT", wSkill + ":    " +ProcessFormula2(wSkill), OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_WSUM", "$pppsu_WSUMT", GetBySchool1("warrior","_sum") as int, OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_AVGcalcM", "$pppsu_AVGcalcT", mSkill + ":    " +ProcessFormula2(mSkill), OPTION_FLAG_NONE)
+			self.AddTextOptionST("pppsu_MSUM", "$pppsu_MSUMT", GetBySchool1("mage","_sum") as int, OPTION_FLAG_NONE)
+			;self.AddTextOptionST("pppsu_SKILLESS", "$pppsu_SKILLESS", skillLess, OPTION_FLAG_NONE)	
 		endif
 		self.AddHeaderOption(" ")
 		self.AddHeaderOption("$pppsu_HEADER2")
@@ -588,12 +589,12 @@ state pppsu_PPperDep
 	endEvent
 endState
 
-state pppsu_Current
-	event OnSelectST()
-			Debug.MessageBox("Reloading data...")
-			ForcePageReset()
-	endEvent
-endState
+; state pppsu_Current
+	; event OnSelectST()
+			; Debug.MessageBox("Reloading data...")
+			; ForcePageReset()
+	; endEvent
+; endState
 
 state pppsuFormulasMenu
 

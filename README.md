@@ -1,14 +1,51 @@
 ### Gain skill points for leveling skills. Configurable formulas, standardized parsing, MCM. 
 
-This mod adds an option to gain skill points as you improve skills, and it was meant to go along with Time-Based Enemy Scaling (Automatic) https://www.nexusmods.com/skyrimspecialedition/mods/27203 mod. 
-However, this mod is independent, and you can use it with or without mods that change leveling - all it needs is vanilla skill level increase event to happen.
-
+This mod adds an option to gain skill points as you improve skills - not just character level.
 
 REQUIREMENTS:
 
 SKSE64  
 PapyrusUtil  
 
+### What & why:  
+ 
+This mod is meant to go along with Time-Based Enemy Scaling (Automatic) https://www.nexusmods.com/skyrimspecialedition/mods/27203 mod.  
+However, PPPSU doesn't require it, and all you need is skill levelup events to happen.  
+In general, this mod allows you to have more specific progression towards the next perk point instead of flat "new level - new perk".  
+
+### Features:
+	Multiple formulas  
+	Different basic rules (archery in Warrior or Sneak, for example)  
+	Configurable number of perk points given  
+	Configurable progress value needed.  
+
+### How to use:  
+Install SKSE64 and PapyrusUtil,  
+Install the mod,  
+Go to MCM menu and choose a preset  
+
+There are 6 presets so far:  
+	early-learner: more perk points at the beginning, less and less with time;  
+	schools-based: more points from schools, less point as your character level increases;  
+	skill-based: greater skill levels = more perk points, default preset;  
+	speciality-all: specialize in one school and get more perks from it, less perks from other schools;  
+	speciality-best: same as previous, but less restrictive;  
+	speciality-SkyRe: SkyRe-specific version of "speciality-all", less influence from Wayfarer skill;  
+
+### Performance:  
+	The formula itself is loaded only when you choose it in MCM (or at the start of the game - default.json is loaded), or switch rulesets.  
+	Calculations happen every time you get a skill level.  
+	The load depends on formula complexity, but it's fast for a single level (or a few levels at once).
+	Getting many skill levels at a time will not affect performance, but calculations may take some time (~4s for 14 levels, for example).    
+
+### Additional information:  
+
+If you get multiple levels at once, calculations will take some time (depends on formula complexity), as they are taking each gained level one by one.  
+
+*Technically, skill are just actor values, so you can put any existing AV into a category and use it in calculations.  
+
+### Advanced settings:  
+  
 The idea itself is pretty simple, so I decided to expand it with configurable formulas, stored in .json files at "\SKSE\Plugins\pppsu_formulas" and loaded through MCM.  
 
 Formulas can have elements of "TagValue", i.e. MAGE_min0.01  
@@ -48,12 +85,3 @@ Example:
 -(Mage school: the least developed skill level) * 0.0031,  
 -(Thief school: sum of all skills in that school) * 0.0032,  
 +(Lockpicking skill level) * 0.001.  
-
-
-### Additional information:  
-
-The formula itself is loaded only when you choose it in MCM (or at the start of the game - default.json is loaded), or switch rulesets.  
-However, calculations happen at skill levelup event, so you can swap formulas midgame.  
-If you get multiple levels at once, calculations will take some time (depends on formula complexity), as they are taking each gained level one by one.  
-
-*Technically, skill are just actor values, so you can put any existing AV into a category and use it in calculations.  
