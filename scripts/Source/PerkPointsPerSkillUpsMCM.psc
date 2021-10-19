@@ -507,7 +507,9 @@ function OnPageReset(String a_page)
 		self.AddSliderOptionST("pppsu_PPperDep", "$pppsu_PPperDepT", PerkPointsPerDeposit.GetValue() as float, "{1} each time")
 		
 		self.AddMenuOptionST("pppsuFormulasMenu", "$pppsu_FM", selectedFileName)
-		self.AddEmptyOption()
+		self.AddHeaderOption("$pppsu_HEADER3")
+		self.AddHeaderOption(" ")
+		self.AddTextOptionST("pppsu_Current", "$pppsu_CurrentT", SkillUps.GetValue() as float, OPTION_FLAG_NONE)
 		
 		
 		
@@ -523,9 +525,7 @@ function OnPageReset(String a_page)
 		;endif
 		self.AddHeaderOption("$pppsu_HEADER1")
 		self.AddHeaderOption(" ")
-		self.AddTextOptionST("pppsu_Current", "$pppsu_CurrentT", SkillUps.GetValue() as float, OPTION_FLAG_NONE)
 		if skillLess == true
-			self.AddEmptyOption()
 			self.AddTextOptionST("pppsu_AVGcalc", "$pppsu_AVGcalcT", ": " +ProcessFormula2(tSkill), OPTION_FLAG_NONE)
 			self.AddTextOptionST("pppsu_TSUM", "$pppsu_TSUMT", GetBySchool1("thief","_sum") as int, OPTION_FLAG_NONE)
 			self.AddEmptyOption()
@@ -534,7 +534,6 @@ function OnPageReset(String a_page)
 			self.AddTextOptionST("pppsu_SKILLESS", "$pppsu_SKILLESS", skillLess, OPTION_FLAG_NONE)	
 			self.AddEmptyOption()
 		else
-			self.AddEmptyOption()
 			self.AddTextOptionST("pppsu_AVGcalcT", "$pppsu_AVGcalcT", tSkill + ":    " + ProcessFormula2(tSkill), OPTION_FLAG_NONE)
 			self.AddTextOptionST("pppsu_TSUM", "$pppsu_TSUMT", GetBySchool1("thief","_sum") as int, OPTION_FLAG_NONE)
 			self.AddTextOptionST("pppsu_AVGcalcW", "$pppsu_AVGcalcT", wSkill + ":    " +ProcessFormula2(wSkill), OPTION_FLAG_NONE)

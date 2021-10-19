@@ -14,11 +14,13 @@
  Originally, is was meant to go along with Time-Based Enemy Scaling (Automatic) https://www.nexusmods.com/skyrimspecialedition/mods/27203 mod to have more organic way of getting perk points.
 
 
-### Features:
+### Features:  
  > Multiple formulas  
  > Different basic rules (Archery can be in Warrior or Thief schools, for example)  
  > Configurable number of perk points given  
  > Configurable progress value needed.  
+ You will also hear a quiet sound effect when you receive a perk point.  
+ MCM menu contains Information tab with additional technical info, like estimated progress for differents schools.   
 
 ### How to use:  
  > Install SKSE64, SkyUI and PapyrusUtil,  
@@ -54,6 +56,11 @@
 
  *Technically, skill are just actor values, so you can put any existing AV into a category and use it in calculations.  
 
+### Credits:
+ SKSE Team and SkyUI Team - for the greater good;  
+ exiledviper and meh321 - for PapyrusUtil;  
+ VanKorno - for the reason this mod even exists.  
+ 
 ### Advanced settings:  
   
 	The idea itself is pretty simple, so I decided to expand it with configurable formulas, stored in .json files at "\SKSE\Plugins\pppsu_formulas" and loaded through MCM.  

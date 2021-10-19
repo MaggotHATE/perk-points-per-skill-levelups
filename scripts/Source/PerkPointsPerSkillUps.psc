@@ -47,7 +47,7 @@ Event OnStoryIncreaseSkill(string asSkill)
 		endwhile
 		;playSFX(playerOR)
 		;PlayerRef.placeAtMe(upgradeSND)	
-		Debug.Notification(asSkill+ " skill increased, "+SkillLvlDiff+" levels total, last is "+PPPSUcalculated)
+		;Debug.Notification(asSkill+ " skill increased, "+SkillLvlDiff+" levels total, last is "+PPPSUcalculated)
 	else
 		PPPSUcalculated = PPPSU_1.ProcessFormula2(asSkill)
 		;StorageUtil.GetFloatValue(none, "PPPSUcalculated")
@@ -56,7 +56,7 @@ Event OnStoryIncreaseSkill(string asSkill)
 		endif
 		
 		;PlayerRef.placeAtMe(upgradeSND)
-		Debug.Notification(asSkill+ " skill increased, "+SkillUps.getvalue() as float+" total, " + PPPSUcalculated + " now")
+		;Debug.Notification(asSkill+ " skill increased, "+SkillUps.getvalue() as float+" total, " + PPPSUcalculated + " now")
 		
 	endif
 	;PPPSU_1.StoreSkills(SkillUps)
@@ -75,11 +75,11 @@ bool function ResolvePerkPoints(float toPerkPointProgress)
 	if SkillUps.getvalue() >= PerXperks
 		float tempPP = PerXperks*depositPP + pppsu_1.realPerkPoints
 		int perkPointsGivenActual = tempPP as int
-		Debug.Notification(tempPP + " - "+perkPointsGivenActual)
+		;Debug.Notification(tempPP + " - "+perkPointsGivenActual)
 		PPPSU_1.realPerkPoints = tempPP - perkPointsGivenActual
-		Debug.Notification("Change: "+PPPSU_1.realPerkPoints)
+		;Debug.Notification("Change: "+PPPSU_1.realPerkPoints)
 		Game.AddPerkPoints(perkPointsGivenActual)
-		
+		Debug.Notification("You've got a perk point!")
 		SkillUps.setvalue(SkillUps.getvalue() - PerXperks)
 		wasPerkGiven = true
 		
