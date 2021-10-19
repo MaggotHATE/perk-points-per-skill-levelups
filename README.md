@@ -1,58 +1,58 @@
 ### Gain skill points for leveling skills. Configurable formulas, standardized parsing, MCM. 
 
-	This mod adds an option to gain skill points as you improve skills - not just character level.
+ This mod adds an option to gain skill points as you improve skills - not just character level.
 
 ### REQUIREMENTS:   
 
-	SKSE64  
-	SkyUI  
-	PapyrusUtil  
+ SKSE64  
+ SkyUI  
+ PapyrusUtil  
 
 ### What & why:  
  
-	In general, this mod allows you to have more specific progression in perk points instead of flat "new level - new perk point", with more settings than Uncapper.    
-	Originally, is was meant to go along with Time-Based Enemy Scaling (Automatic) https://www.nexusmods.com/skyrimspecialedition/mods/27203 mod to have more organic way of getting perk points.
+ In general, this mod allows you to have more specific progression in perk points instead of flat "new level - new perk point", with more settings than Uncapper.    
+ Originally, is was meant to go along with Time-Based Enemy Scaling (Automatic) https://www.nexusmods.com/skyrimspecialedition/mods/27203 mod to have more organic way of getting perk points.
 
 
 ### Features:
-	> Multiple formulas  
-	> Different basic rules (Archery can be in Warrior or Thief schools, for example)  
-	> Configurable number of perk points given  
-	> Configurable progress value needed.  
+ > Multiple formulas  
+ > Different basic rules (Archery can be in Warrior or Thief schools, for example)  
+ > Configurable number of perk points given  
+ > Configurable progress value needed.  
 
 ### How to use:  
-	> Install SKSE64, SkyUI and PapyrusUtil,  
-	> Install the mod,  
-	> Go to MCM menu and choose a preset  
+ > Install SKSE64, SkyUI and PapyrusUtil,  
+ > Install the mod,  
+ > Go to MCM menu and choose a preset  
 
-	There are 6 presets so far:  
-	> early-learner: more perk points at the beginning, less and less with time;  
-	> schools-based: more points from schools, less point as your character level increases;  
-	> skill-based: greater skill levels = more perk points (default preset);  
-	> speciality-all: specialize in one school and get more perks from it, less perks from other schools;  
-	> speciality-best: same as previous, but less restrictive;  
-	> speciality-SkyRe: SkyRe-specific version of "speciality-all", less influence from Wayfarer skill;  
+ There are 6 presets so far:  
+ > early-learner: more perk points at the beginning, less and less with time;  
+ > schools-based: more points from schools, less point as your character level increases;  
+ > skill-based: greater skill levels = more perk points (default preset);  
+ > speciality-all: specialize in one school and get more perks from it, less perks from other schools;  
+ > speciality-best: same as previous, but less restrictive;  
+ > speciality-SkyRe: SkyRe-specific version of "speciality-all", less influence from Wayfarer skill;  
 
-	Additionally, there are rulesets:
-	> Vanilla: standard schools, i.e. archery is a Warrior skill (default ruleset);  
-	> Vanilla-fixed: swapped Light armor and Archery skills;   
-	> Craft: separates Alchemy, Smithing, Enchanting and Speechcraft into a separate school to exclude them from calculations.  
+ Additionally, there are rulesets:
+ > Vanilla: standard schools, i.e. archery is a Warrior skill (default ruleset);  
+ > Vanilla-fixed: swapped Light armor and Archery skills;   
+ > Craft: separates Alchemy, Smithing, Enchanting and Speechcraft into a separate school to exclude them from calculations.  
 	
 ### Performance:  
-	The formula itself is loaded only when you choose it in MCM (or at the start of the game - default.json is loaded), or switch rulesets.  
-	Calculations happen every time you get a skill level.  
-	The load depends on formula complexity, but it's fast for a single level (or a few levels at once).
-	Getting many skill levels at a time shouldn't affect performance, but calculations may take some time (~4s for 14 levels, for example).    
+ The formula itself is loaded only when you choose it in MCM (or at the start of the game - default.json is loaded), or switch rulesets.  
+ Calculations happen every time you get a skill level.  
+ The load depends on formula complexity, but it's fast for a single level (or a few levels at once).
+ Getting many skill levels at a time shouldn't affect performance, but calculations may take some time (~4s for 14 levels, for example).    
 
 ### Compatibility:  
-	This mod uses "skill level improved" event, so it might do nothing for mods that change skill leveling.   
-	Other than that, there should be no problems.
+ This mod uses "skill level improved" event, so it might do nothing for mods that change skill leveling.   
+ Other than that, there should be no problems.
 	
 ### Additional information:  
 
-	If you get multiple levels at once, calculations will take some time (depends on formula complexity), as they are taking each gained level one by one.  
+ If you get multiple levels at once, calculations will take some time (depends on formula complexity), as they are taking each gained level one by one.  
 
-	*Technically, skill are just actor values, so you can put any existing AV into a category and use it in calculations.  
+ *Technically, skill are just actor values, so you can put any existing AV into a category and use it in calculations.  
 
 ### Advanced settings:  
   
